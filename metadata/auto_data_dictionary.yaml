@@ -1,0 +1,185 @@
+fields:
+- column: Respondent_Serial
+  data_type: float
+  sample_values:
+  - '23822011917320.0'
+  - '23822011917322.0'
+  - '23822011917344.0'
+  - '23822011917377.0'
+  - '23822011917404.0'
+  description: ''
+- column: QLanguage
+  data_type: float
+  sample_values:
+  - '133.0'
+  - '133.0'
+  - '133.0'
+  - '133.0'
+  - '133.0'
+  description: ''
+- column: Q3_CAT_AU_E_TN_DEV
+  data_type: float
+  sample_values:
+  - '1.0'
+  - '2.0'
+  - '1.0'
+  - '1.0'
+  - '2.0'
+  description: ''
+- column: Qcountry
+  data_type: float
+  sample_values:
+  - '238.0'
+  - '238.0'
+  - '238.0'
+  - '238.0'
+  - '238.0'
+  description: ''
+- column: Main_Boost
+  data_type: float
+  sample_values:
+  - '1.0'
+  - '1.0'
+  - '1.0'
+  - '1.0'
+  - '1.0'
+  description: ''
+- column: AGE
+  data_type: float
+  sample_values:
+  - '61.0'
+  - '51.0'
+  - '40.0'
+  - '26.0'
+  - '37.0'
+  description: ''
+- column: LegalAge
+  data_type: integer
+  sample_values:
+  - '18'
+  - '18'
+  - '18'
+  - '18'
+  - '18'
+  description: ''
+- column: LegalAge1
+  data_type: integer
+  sample_values:
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  description: ''
+- column: LegalAge2
+  data_type: integer
+  sample_values:
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  description: ''
+- column: SEX
+  data_type: float
+  sample_values:
+  - '1.0'
+  - '1.0'
+  - '1.0'
+  - '1.0'
+  - '1.0'
+  description: ''
+- column: DEMO_REG
+  data_type: float
+  sample_values:
+  - '1621.0'
+  - '1621.0'
+  - '1621.0'
+  - '1621.0'
+  - '1621.0'
+  description: ''
+- column: DEMO_EDUC
+  data_type: float
+  sample_values:
+  - '274.0'
+  - '274.0'
+  - '407.0'
+  - '406.0'
+  - '406.0'
+  description: ''
+- column: DEMO_OCC
+  data_type: integer
+  sample_values:
+  - '520'
+  - '80'
+  - '498'
+  - '80'
+  - '520'
+  description: ''
+- column: UsertypeN#24
+  data_type: integer
+  sample_values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  description: ''
+- column: UsertypeN#25
+  data_type: integer
+  sample_values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  description: ''
+- column: UsertypeN#26
+  data_type: integer
+  sample_values:
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  - '0'
+  description: ''
+- column: UsertypeN#27
+  data_type: integer
+  sample_values:
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  description: ''
+- column: UsertypeN#28
+  data_type: integer
+  sample_values:
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  description: ''
+- column: AGE_GROUP_2
+  data_type: integer
+  sample_values:
+  - '6'
+  - '5'
+  - '4'
+  - '2'
+  - '3'
+  description: ''
+- column: Q5_PBAT_SPONT_AWARE_TOM
+  data_type: float
+  sample_values: []
+  description: ''
+- column: MHI_Groups
+  data_type: integer
+  sample_values:
+  - '4'
+  - '4'
+  - '4'
+  - '4'
+  - '4'
+  description: ''

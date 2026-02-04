@@ -1,0 +1,20 @@
+{
+  "Age": "Respondent Age",
+  "Gender": "Respondent Gender",
+  "Region": "Respondent Region",
+  "BrandA_awareness": "BrandA Brand Awareness",
+  "BrandA_usage": "BrandA Brand Usage",
+  "BrandA_affinity": "BrandA Brand Affinity",
+  "BrandA_uniqueness": "BrandA Brand Uniqueness",
+  "BrandA_dynamism": "BrandA Brand Dynamism",
+  "BrandB_awareness": "BrandB Brand Awareness",
+  "BrandB_usage": "BrandB Brand Usage",
+  "BrandB_affinity": "BrandB Brand Affinity",
+  "BrandB_uniqueness": "BrandB Brand Uniqueness",
+  "BrandB_dynamism": "BrandB Brand Dynamism",
+  "BrandC_awareness": "BrandC Brand Awareness",
+  "BrandC_usage": "BrandC Brand Usage",
+  "BrandC_affinity": "BrandC Brand Affinity",
+  "BrandC_uniqueness": "BrandC Brand Uniqueness",
+  "BrandC_dynamism": "BrandC Brand Dynamism"
+}

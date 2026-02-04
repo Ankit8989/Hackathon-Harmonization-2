@@ -1,0 +1,20 @@
+{
+  "Age": "AGE",
+  "Gender": "GENDER",
+  "Region": "REGION",
+  "BrandA_awareness": "AWARENESS",
+  "BrandA_usage": "USAGE",
+  "BrandA_affinity": "AFFINITY",
+  "BrandA_uniqueness": "UNIQUENESS",
+  "BrandA_dynamism": "DYNAMISM",
+  "BrandB_awareness": "AWARENESS",
+  "BrandB_usage": "USAGE",
+  "BrandB_affinity": "AFFINITY",
+  "BrandB_uniqueness": "UNIQUENESS",
+  "BrandB_dynamism": "DYNAMISM",
+  "BrandC_awareness": "AWARENESS",
+  "BrandC_usage": "USAGE",
+  "BrandC_affinity": "AFFINITY",
+  "BrandC_uniqueness": "UNIQUENESS",
+  "BrandC_dynamism": "DYNAMISM"
+}

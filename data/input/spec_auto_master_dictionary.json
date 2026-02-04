@@ -1,0 +1,127 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-01-29T10:43:07.836580",
+  "columns": {
+    "RID": {
+      "data_type": "integer",
+      "min": 2.0,
+      "max": 200.0,
+      "impute_strategy": "mean"
+    },
+    "Age": {
+      "data_type": "integer",
+      "min": 18.0,
+      "max": 65.0,
+      "impute_strategy": "mean"
+    },
+    "Gender": {
+      "data_type": "categorical",
+      "allowed_values": [
+        "Male",
+        "Female",
+        "Other"
+      ],
+      "impute_strategy": "mode"
+    },
+    "Region": {
+      "data_type": "categorical",
+      "allowed_values": [
+        "East",
+        "West",
+        "South",
+        "North"
+      ],
+      "impute_strategy": "mode"
+    },
+    "BrandA_awareness": {
+      "data_type": "float",
+      "min": 0.0,
+      "max": 1.0,
+      "impute_strategy": "mean"
+    },
+    "BrandA_usage": {
+      "data_type": "float",
+      "min": 0.0,
+      "max": 1.0,
+      "impute_strategy": "mean"
+    },
+    "BrandA_affinity": {
+      "data_type": "float",
+      "min": 1.0,
+      "max": 5.0,
+      "impute_strategy": "mean"
+    },
+    "BrandA_uniqueness": {
+      "data_type": "float",
+      "min": 1.0,
+      "max": 5.0,
+      "impute_strategy": "mean"
+    },
+    "BrandA_dynamism": {
+      "data_type": "float",
+      "min": 1.0,
+      "max": 5.0,
+      "impute_strategy": "mean"
+    },
+    "BrandB_awareness": {
+      "data_type": "float",
+      "min": 0.0,
+      "max": 1.0,
+      "impute_strategy": "mean"
+    },
+    "BrandB_usage": {
+      "data_type": "float",
+      "min": 0.0,
+      "max": 1.0,
+      "impute_strategy": "mean"
+    },
+    "BrandB_affinity": {
+      "data_type": "float",
+      "min": 1.0,
+      "max": 10.0,
+      "impute_strategy": "mean"
+    },
+    "BrandB_uniqueness": {
+      "data_type": "float",
+      "min": 1.0,
+      "max": 5.0,
+      "impute_strategy": "mean"
+    },
+    "BrandB_dynamism": {
+      "data_type": "float",
+      "min": 1.0,
+      "max": 5.0,
+      "impute_strategy": "mean"
+    },
+    "BrandC_awareness": {
+      "data_type": "float",
+      "min": 0.0,
+      "max": 1.0,
+      "impute_strategy": "mean"
+    },
+    "BrandC_usage": {
+      "data_type": "float",
+      "min": 0.0,
+      "max": 1.0,
+      "impute_strategy": "mean"
+    },
+    "BrandC_affinity": {
+      "data_type": "float",
+      "min": 1.0,
+      "max": 8.0,
+      "impute_strategy": "mean"
+    },
+    "BrandC_uniqueness": {
+      "data_type": "float",
+      "min": 1.0,
+      "max": 5.0,
+      "impute_strategy": "mean"
+    },
+    "BrandC_dynamism": {
+      "data_type": "float",
+      "min": 1.0,
+      "max": 5.0,
+      "impute_strategy": "mean"
+    }
+  }
+}

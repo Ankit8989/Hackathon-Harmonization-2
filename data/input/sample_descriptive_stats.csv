@@ -1,0 +1,4 @@
+dataset,column,mean,median,mode,min,max,std,outlier_count,missing_pct,unique_count
+baseline,satisfaction_score,75.2,78.0,80,0.0,100.0,12.5,2.0,1.2,101
+baseline,nps_score,6.4,7.0,8,0.0,10.0,2.1,1.0,0.8,11
+baseline,purchase_intent,,,Likely,,,,,0.5,5

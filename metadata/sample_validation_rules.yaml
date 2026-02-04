@@ -1,0 +1,36 @@
+rules:
+- min_records: 30
+- column: satisfaction_score
+  min: 0
+  max: 100
+- column: nps_score
+  min: 0
+  max: 10
+- column: age
+  allowed_values:
+  - 18-24
+  - 25-34
+  - 35-44
+  - 45-54
+  - 55+
+  - 18 to 24
+  - 25 to 34
+  - 35 to 44
+  - 45 to 54
+  - 55 plus
+- column: country
+  allowed_values:
+  - USA
+  - UK
+  - Germany
+  - France
+  - Spain
+  - Italy
+  - Netherlands
+  - Belgium
+  - Japan
+  - Australia
+  - Canada
+  - Brazil
+  - India
+  - China

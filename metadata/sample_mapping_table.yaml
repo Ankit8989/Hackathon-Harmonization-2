@@ -1,0 +1,11 @@
+channel:
+  ONL: Online
+  RET: Retail
+  MOB: Mobile
+  SOC: Social
+purchase_intent:
+  VU: Very Unlikely
+  U: Unlikely
+  N: Neutral
+  L: Likely
+  VL: Very Likely

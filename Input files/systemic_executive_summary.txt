@@ -1,0 +1,15 @@
+- **Root Cause Hypothesis:**  
+  - Likely shifts in respondent mix (Age, Gender) due to recent sampling changes, panel refresh, or campaign targeting updates, driving downstream drift in brand awareness, affinity, and usage metrics.  
+  - Possible survey instrument or weighting changes impacting brand-related measures without triggering column-level anomalies.
+
+- **Business Risk Assessment:**  
+  - Trend comparability risk: brand performance insights may not be directly comparable to prior periods, potentially misleading marketing and portfolio decisions.  
+  - Decision risk: budgeting, media allocation, and brand health KPIs could be biased if demographic-driven drift is not accounted for.
+
+- **Technical Remediation Steps:**  
+  - Validate recent changes in data collection, weighting, and transformation logic; re-run drift analysis with demographic stratification.  
+  - Apply normalization or reweighting to adjust for demographic shifts; document any methodological breaks in time series.
+
+- **Governance Recommendations:**  
+  - Institute formal change management and sign-off for survey, sampling, or pipeline modifications affecting key brand metrics.  
+  - Enhance ongoing monitoring with demographic-aware drift thresholds and require executive review when multiple business-critical columns drift concurrently.

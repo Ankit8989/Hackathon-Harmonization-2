@@ -1,0 +1,310 @@
+{
+  "shape": {
+    "rows": 12,
+    "columns": 8
+  },
+  "head": [
+    {
+      "date": "2023-01-15",
+      "product": "Brand_A",
+      "region": "North",
+      "channel": "Online",
+      "units": 120,
+      "unit_price": 9.5,
+      "revenue": 1140.0,
+      "currency": "USD"
+    },
+    {
+      "date": "2023-02-10",
+      "product": "Brand_B",
+      "region": "South",
+      "channel": "Retail",
+      "units": 85,
+      "unit_price": 11.0,
+      "revenue": 935.0,
+      "currency": "USD"
+    },
+    {
+      "date": "2023-03-08",
+      "product": "Brand_C",
+      "region": "East",
+      "channel": "Wholesale",
+      "units": 60,
+      "unit_price": 13.25,
+      "revenue": 795.0,
+      "currency": "USD"
+    },
+    {
+      "date": "2023-04-12",
+      "product": "Brand_A",
+      "region": "West",
+      "channel": "Online",
+      "units": 140,
+      "unit_price": 9.75,
+      "revenue": 1365.0,
+      "currency": "USD"
+    },
+    {
+      "date": "2023-05-05",
+      "product": "Brand_D",
+      "region": "North",
+      "channel": "Retail",
+      "units": 95,
+      "unit_price": 10.5,
+      "revenue": 997.5,
+      "currency": "USD"
+    }
+  ],
+  "tail": [
+    {
+      "date": "2023-08-14",
+      "product": "Brand_D",
+      "region": "West",
+      "channel": "Retail",
+      "units": 88,
+      "unit_price": 10.75,
+      "revenue": 946.0,
+      "currency": "USD"
+    },
+    {
+      "date": "2023-09-09",
+      "product": "Brand_A",
+      "region": "East",
+      "channel": "Online",
+      "units": 130,
+      "unit_price": 9.6,
+      "revenue": 1248.0,
+      "currency": "USD"
+    },
+    {
+      "date": "2023-10-03",
+      "product": "Brand_B",
+      "region": "North",
+      "channel": "Wholesale",
+      "units": 75,
+      "unit_price": 11.1,
+      "revenue": 832.5,
+      "currency": "USD"
+    },
+    {
+      "date": "2023-11-19",
+      "product": "Brand_C",
+      "region": "West",
+      "channel": "Retail",
+      "units": 92,
+      "unit_price": 13.4,
+      "revenue": 1232.8,
+      "currency": "USD"
+    },
+    {
+      "date": "2023-12-07",
+      "product": "Brand_D",
+      "region": "South",
+      "channel": "Online",
+      "units": 105,
+      "unit_price": 10.9,
+      "revenue": 1144.5,
+      "currency": "USD"
+    }
+  ],
+  "columns": {
+    "date": {
+      "dtype": "object",
+      "inferred_type": "string",
+      "unique_count": 12,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "2023-01-15",
+        "2023-02-10",
+        "2023-03-08",
+        "2023-04-12",
+        "2023-05-05"
+      ],
+      "levels": {
+        "2023-01-15": 1,
+        "2023-02-10": 1,
+        "2023-03-08": 1,
+        "2023-04-12": 1,
+        "2023-05-05": 1,
+        "2023-06-18": 1,
+        "2023-07-22": 1,
+        "2023-08-14": 1,
+        "2023-09-09": 1,
+        "2023-10-03": 1,
+        "2023-11-19": 1,
+        "2023-12-07": 1
+      }
+    },
+    "product": {
+      "dtype": "object",
+      "inferred_type": "string",
+      "unique_count": 4,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "Brand_A",
+        "Brand_B",
+        "Brand_C",
+        "Brand_A",
+        "Brand_D"
+      ],
+      "levels": {
+        "Brand_A": 3,
+        "Brand_B": 3,
+        "Brand_C": 3,
+        "Brand_D": 3
+      }
+    },
+    "region": {
+      "dtype": "object",
+      "inferred_type": "string",
+      "unique_count": 4,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "North",
+        "South",
+        "East",
+        "West",
+        "North"
+      ],
+      "levels": {
+        "North": 3,
+        "South": 3,
+        "East": 3,
+        "West": 3
+      }
+    },
+    "channel": {
+      "dtype": "object",
+      "inferred_type": "string",
+      "unique_count": 3,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "Online",
+        "Retail",
+        "Wholesale",
+        "Online",
+        "Retail"
+      ],
+      "levels": {
+        "Online": 5,
+        "Retail": 4,
+        "Wholesale": 3
+      }
+    },
+    "units": {
+      "dtype": "int64",
+      "inferred_type": "integer",
+      "unique_count": 12,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "120",
+        "85",
+        "60",
+        "140",
+        "95"
+      ],
+      "min": 60.0,
+      "max": 140.0,
+      "mean": 97.5,
+      "median": 93.5,
+      "std": 24.370250119953443,
+      "scale_range": 80.0
+    },
+    "unit_price": {
+      "dtype": "float64",
+      "inferred_type": "float",
+      "unique_count": 12,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "9.5",
+        "11.0",
+        "13.25",
+        "9.75",
+        "10.5"
+      ],
+      "min": 9.5,
+      "max": 13.4,
+      "mean": 11.1625,
+      "median": 10.95,
+      "std": 1.3701567594456285,
+      "scale_range": 3.9000000000000004
+    },
+    "revenue": {
+      "dtype": "float64",
+      "inferred_type": "float",
+      "unique_count": 12,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "1140.0",
+        "935.0",
+        "795.0",
+        "1365.0",
+        "997.5"
+      ],
+      "min": 795.0,
+      "max": 1365.0,
+      "mean": 1064.8583333333333,
+      "median": 1068.75,
+      "std": 185.3935247390035,
+      "scale_range": 570.0
+    },
+    "currency": {
+      "dtype": "object",
+      "inferred_type": "string",
+      "unique_count": 1,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "USD",
+        "USD",
+        "USD",
+        "USD",
+        "USD"
+      ],
+      "levels": {
+        "USD": 12
+      }
+    }
+  },
+  "missing_patterns": {
+    "missing_by_column": {
+      "date": 0.0,
+      "product": 0.0,
+      "region": 0.0,
+      "channel": 0.0,
+      "units": 0.0,
+      "unit_price": 0.0,
+      "revenue": 0.0,
+      "currency": 0.0
+    },
+    "missing_by_row": {
+      "0": 12
+    }
+  },
+  "relationships": {
+    "numeric_correlations": [
+      {
+        "column_a": "units",
+        "column_b": "revenue",
+        "correlation": 0.8991909884128575
+      },
+      {
+        "column_a": "units",
+        "column_b": "unit_price",
+        "correlation": -0.7672847851000432
+      },
+      {
+        "column_a": "unit_price",
+        "column_b": "revenue",
+        "correlation": -0.42677822150398204
+      }
+    ]
+  }
+}

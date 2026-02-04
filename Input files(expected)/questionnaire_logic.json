@@ -1,0 +1,37 @@
+{
+  "filters": [
+    {
+      "if": {
+        "BrandA_awareness": 0
+      },
+      "then_null": [
+        "BrandA_usage",
+        "BrandA_affinity",
+        "BrandA_uniqueness",
+        "BrandA_dynamism"
+      ]
+    },
+    {
+      "if": {
+        "BrandB_awareness": 0
+      },
+      "then_null": [
+        "BrandB_usage",
+        "BrandB_affinity",
+        "BrandB_uniqueness",
+        "BrandB_dynamism"
+      ]
+    },
+    {
+      "if": {
+        "BrandC_awareness": 0
+      },
+      "then_null": [
+        "BrandC_usage",
+        "BrandC_affinity",
+        "BrandC_uniqueness",
+        "BrandC_dynamism"
+      ]
+    }
+  ]
+}

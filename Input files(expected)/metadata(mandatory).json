@@ -1,0 +1,67 @@
+{
+  "AGE": {
+    "type": "numeric",
+    "min": 18,
+    "max": 65
+  },
+  "GENDER": {
+    "type": "categorical",
+    "allowed": [
+      "Male",
+      "Female"
+    ]
+  },
+  "REGION": {
+    "type": "categorical",
+    "allowed": [
+      "North",
+      "South",
+      "East",
+      "West"
+    ]
+  },
+  "AWARENESS": {
+    "type": "binary",
+    "allowed": [
+      0,
+      1
+    ]
+  },
+  "USAGE": {
+    "type": "binary",
+    "allowed": [
+      0,
+      1
+    ]
+  },
+  "AFFINITY": {
+    "type": "likert",
+    "allowed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "UNIQUENESS": {
+    "type": "likert",
+    "allowed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "DYNAMISM": {
+    "type": "likert",
+    "allowed": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  }
+}

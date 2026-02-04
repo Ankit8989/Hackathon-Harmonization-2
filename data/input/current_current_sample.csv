@@ -1,0 +1,9 @@
+date,product,region,channel,units,unit_price,revenue,currency
+2025-12-05,Brand_A,North,Online,155,10.10,1565.50,USD
+2025-12-12,Brand_B,South,Retail,98,11.40,1117.20,USD
+2025-12-19,Brand_C,East,Wholesale,66,13.60,897.60,USD
+2025-12-26,Brand_D,West,Retail,90,11.05,994.50,USD
+2026-01-02,Brand_A,East,Online,145,10.25,1486.25,USD
+2026-01-09,Brand_B,North,Wholesale,82,11.55,947.10,USD
+2026-01-16,Brand_C,West,Retail,101,13.70,1383.70,USD
+2026-01-23,Brand_D,South,Online,112,11.10,1243.20,USD

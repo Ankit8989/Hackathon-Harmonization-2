@@ -1,0 +1,170 @@
+schema_name: auto_master_metadata
+version: 1.0.0
+description: Auto-generated master metadata from unclean input
+created_at: '2026-02-04T06:28:08.530277'
+columns:
+- name: Respondent_Serial
+  canonical_name: Respondent_Serial
+  data_type: float
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 23822011917320.0
+    max_value: 23822011936426.0
+- name: QLanguage
+  canonical_name: QLanguage
+  data_type: float
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 133.0
+    max_value: 133.0
+- name: Q3_CAT_AU_E_TN_DEV
+  canonical_name: Q3_CAT_AU_E_TN_DEV
+  data_type: float
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 1.0
+    max_value: 3.0
+- name: Qcountry
+  canonical_name: Qcountry
+  data_type: float
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 238.0
+    max_value: 238.0
+- name: Main_Boost
+  canonical_name: Main_Boost
+  data_type: float
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 1.0
+    max_value: 1.0
+- name: AGE
+  canonical_name: AGE
+  data_type: float
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 18.0
+    max_value: 62.0
+- name: LegalAge
+  canonical_name: LegalAge
+  data_type: integer
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 18.0
+    max_value: 18.0
+- name: LegalAge1
+  canonical_name: LegalAge1
+  data_type: integer
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 1.0
+    max_value: 2.0
+- name: LegalAge2
+  canonical_name: LegalAge2
+  data_type: integer
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 1.0
+    max_value: 2.0
+- name: SEX
+  canonical_name: SEX
+  data_type: float
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 1.0
+    max_value: 1.0
+- name: DEMO_REG
+  canonical_name: DEMO_REG
+  data_type: float
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 1621.0
+    max_value: 1626.0
+- name: DEMO_EDUC
+  canonical_name: DEMO_EDUC
+  data_type: float
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 273.0
+    max_value: 410.0
+- name: DEMO_OCC
+  canonical_name: DEMO_OCC
+  data_type: integer
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 80.0
+    max_value: 520.0
+- name: UsertypeN#24
+  canonical_name: UsertypeN#24
+  data_type: integer
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 0.0
+    max_value: 0.0
+- name: UsertypeN#25
+  canonical_name: UsertypeN#25
+  data_type: integer
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 0.0
+    max_value: 0.0
+- name: UsertypeN#26
+  canonical_name: UsertypeN#26
+  data_type: integer
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 0.0
+    max_value: 0.0
+- name: UsertypeN#27
+  canonical_name: UsertypeN#27
+  data_type: integer
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 0.0
+    max_value: 1.0
+- name: UsertypeN#28
+  canonical_name: UsertypeN#28
+  data_type: integer
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 0.0
+    max_value: 1.0
+- name: AGE_GROUP_2
+  canonical_name: AGE_GROUP_2
+  data_type: integer
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 1.0
+    max_value: 6.0
+- name: Q5_PBAT_SPONT_AWARE_TOM
+  canonical_name: Q5_PBAT_SPONT_AWARE_TOM
+  data_type: float
+  description: ''
+  aliases: []
+- name: MHI_Groups
+  canonical_name: MHI_Groups
+  data_type: integer
+  description: ''
+  aliases: []
+  validation_rules:
+    min_value: 4.0
+    max_value: 4.0

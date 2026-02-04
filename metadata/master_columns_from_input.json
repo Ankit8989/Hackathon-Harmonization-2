@@ -1,0 +1,100 @@
+{
+  "standardized_headers": {
+    "respondent_id": "respondent_id",
+    "survey_date": "survey_date",
+    "country": "country",
+    "age": "age",
+    "gender": "gender",
+    "satisfaction_score": "satisfaction_score",
+    "nps_score": "nps_score",
+    "purchase_intent": "purchase_intent",
+    "channel": "channel",
+    "weight": "weight"
+  },
+  "master_schema": {
+    "schema_name": "master_from_input",
+    "version": "1.0.0",
+    "columns": [
+      {
+        "name": "respondent_id",
+        "canonical_name": "respondent_id",
+        "data_type": "object",
+        "aliases": [
+          "respondent_id"
+        ]
+      },
+      {
+        "name": "survey_date",
+        "canonical_name": "survey_date",
+        "data_type": "object",
+        "aliases": [
+          "survey_date"
+        ]
+      },
+      {
+        "name": "country",
+        "canonical_name": "country",
+        "data_type": "object",
+        "aliases": [
+          "country"
+        ]
+      },
+      {
+        "name": "age",
+        "canonical_name": "age",
+        "data_type": "object",
+        "aliases": [
+          "age"
+        ]
+      },
+      {
+        "name": "gender",
+        "canonical_name": "gender",
+        "data_type": "object",
+        "aliases": [
+          "gender"
+        ]
+      },
+      {
+        "name": "satisfaction_score",
+        "canonical_name": "satisfaction_score",
+        "data_type": "float64",
+        "aliases": [
+          "satisfaction_score"
+        ]
+      },
+      {
+        "name": "nps_score",
+        "canonical_name": "nps_score",
+        "data_type": "int64",
+        "aliases": [
+          "nps_score"
+        ]
+      },
+      {
+        "name": "purchase_intent",
+        "canonical_name": "purchase_intent",
+        "data_type": "object",
+        "aliases": [
+          "purchase_intent"
+        ]
+      },
+      {
+        "name": "channel",
+        "canonical_name": "channel",
+        "data_type": "object",
+        "aliases": [
+          "channel"
+        ]
+      },
+      {
+        "name": "weight",
+        "canonical_name": "weight",
+        "data_type": "float64",
+        "aliases": [
+          "weight"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,213 @@
+# Master Schema for Data Harmonization
+# =====================================
+# Flexible schema that works with various data formats including PMI case data.
+# Required columns are minimal to allow processing of different data structures.
+
+schema_name: generic_data_canonical
+version: "2.0.0"
+description: "Flexible canonical schema for harmonizing various data types including case data"
+created_at: "2024-01-01"
+updated_at: "2026-01-12"
+
+# Set minimum confidence threshold for validation
+validation_settings:
+  min_confidence_threshold: 0.3
+  allow_unmapped_columns: true
+  auto_detect_types: true
+
+columns:
+  # ==========================================
+  # PRIMARY IDENTIFIERS (at least one required)
+  # ==========================================
+  - name: record_id
+    canonical_name: record_id
+    data_type: string
+    description: "Unique record/case identifier"
+    is_required: false
+    is_key: true
+    aliases:
+      - id
+      - case_id
+      - caseid
+      - resp_id
+      - respondent_id
+      - participant_id
+      - uid
+      - record
+      - case
+      - serial
+      - serial_number
+      - row_id
+
+  # ==========================================
+  # TEMPORAL FIELDS (optional)
+  # ==========================================
+  - name: date
+    canonical_name: date
+    data_type: datetime
+    description: "Date field"
+    is_required: false
+    aliases:
+      - survey_date
+      - collection_date
+      - interview_date
+      - timestamp
+      - date_created
+      - created_at
+      - start_date
+      - end_date
+      - wave_date
+
+  - name: wave
+    canonical_name: wave
+    data_type: string
+    description: "Wave/period identifier"
+    is_required: false
+    aliases:
+      - survey_wave
+      - wave_id
+      - period
+      - quarter
+      - study_wave
+      - month
+      - year
+
+  # ==========================================
+  # GEOGRAPHIC FIELDS (optional)
+  # ==========================================
+  - name: country
+    canonical_name: country
+    data_type: categorical
+    description: "Country code or name"
+    is_required: false
+    aliases:
+      - country_code
+      - nation
+      - market
+      - country_name
+      - geo
+      - geography
+      - civ
+      - region
+
+  - name: region
+    canonical_name: region
+    data_type: categorical
+    description: "Geographic region"
+    is_required: false
+    aliases:
+      - geo_region
+      - area
+      - territory
+      - geographic_region
+      - state
+      - city
+      - location
+
+  # ==========================================
+  # DEMOGRAPHIC FIELDS (optional)
+  # ==========================================
+  - name: age
+    canonical_name: age
+    data_type: string
+    description: "Age or age group"
+    is_required: false
+    aliases:
+      - age_group
+      - demographic_age
+      - age_bracket
+      - age_range
+      - respondent_age
+
+  - name: gender
+    canonical_name: gender
+    data_type: categorical
+    description: "Gender"
+    is_required: false
+    aliases:
+      - sex
+      - demographic_gender
+
+  # ==========================================
+  # WEIGHTING FIELDS (optional)
+  # ==========================================
+  - name: weight
+    canonical_name: weight
+    data_type: float
+    description: "Statistical weighting factor"
+    is_required: false
+    default_value: 1.0
+    aliases:
+      - stat_weight
+      - sample_weight
+      - wgt
+      - weighting_factor
+      - wt
+
+  # ==========================================
+  # CATEGORY/TYPE FIELDS (optional)
+  # ==========================================
+  - name: category
+    canonical_name: category
+    data_type: categorical
+    description: "Category or segment"
+    is_required: false
+    aliases:
+      - type
+      - segment
+      - group
+      - class
+      - classification
+      - product_category
+      - brand_category
+
+  # ==========================================
+  # SCORE/NUMERIC FIELDS (optional)
+  # ==========================================
+  - name: score
+    canonical_name: score
+    data_type: float
+    description: "Generic score field"
+    is_required: false
+    aliases:
+      - value
+      - result
+      - rating
+      - satisfaction_score
+      - nps_score
+      - total_score
+
+  # ==========================================
+  # TEXT FIELDS (optional)
+  # ==========================================
+  - name: comments
+    canonical_name: comments
+    data_type: string
+    description: "Open-ended comments or notes"
+    is_required: false
+    aliases:
+      - feedback
+      - open_text
+      - verbatim
+      - notes
+      - description
+      - text
+
+# ==========================================
+# BUSINESS RULES (flexible for demo)
+# ==========================================
+business_rules:
+  - "Data should have at least 10 records for processing"
+  - "Allow processing even if some columns cannot be mapped"
+  - "Preserve original column names for unmapped columns"
+  - "Flag but do not reject records with missing values"
+  - "Auto-detect data types when possible"
+
+# ==========================================
+# PROCESSING OPTIONS
+# ==========================================
+processing_options:
+  preserve_unmapped: true
+  strict_validation: false
+  allow_partial_mapping: true
+  min_mapped_columns: 1

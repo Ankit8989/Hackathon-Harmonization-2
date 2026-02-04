@@ -1,0 +1,121 @@
+respondent_id,survey_date,country,age,gender,satisfaction_score,nps_score,purchase_intent,channel,weight
+RESP1000,2024-01-01,France,25-34,Male,42.0,4,Neutral,Retail,1.763
+RESP1001,2024-01-02,Japan,18-24,Male,47.0,6,Unlikely,Social,1.653
+RESP1002,2024-01-03,Germany,55+,Female,38.0,9,Likely,Mobile,0.599
+RESP1003,2024-01-04,Japan,,Other,92.0,9,,Online,0.569
+RESP1004,2024-01-05,Japan,45-54,Other,41.0,5,Unlikely,Mobile,1.431
+RESP1005,2024-01-06,UK,35-44,Female,25.0,4,Unlikely,Online,1.021
+RESP1006,2024-01-07,Germany,35-44,Female,98.0,3,Likely,Retail,0.814
+RESP1007,2024-01-08,Germany,18-24,Other,49.0,1,Very Unlikely,Mobile,1.369
+RESP1008,2024-01-09,Germany,35-44,Other,24.0,3,Very Likely,Online,1.012
+RESP1009,2024-01-10,Japan,55+,Female,23.0,9,Very Likely,Retail,1.306
+RESP1010,2024-01-11,France,35-44,Male,12.0,9,Unlikely,Mobile,1.19
+RESP1011,2024-01-12,Germany,18-24,Male,59.0,2,Very Unlikely,Mobile,1.377
+RESP1012,2024-01-13,Australia,55+,Female,6.0,9,Unlikely,Online,1.1
+RESP1013,2024-01-14,Japan,25-34,Male,56.0,0,Neutral,Online,1.547
+RESP1014,2024-01-15,UK,35-44,,35.0,7,Unlikely,Online,0.77
+RESP1015,2024-01-16,France,18-24,Male,,4,Unlikely,Retail,1.545
+RESP1016,2024-01-17,Australia,25-34,Male,19.0,3,Very Likely,Online,1.117
+RESP1017,2024-01-18,Australia,25-34,Other,64.0,7,Very Likely,Mobile,1.811
+RESP1018,2024-01-19,UK,45-54,Other,7.0,6,Very Likely,Mobile,1.273
+RESP1019,2024-01-20,France,55+,Male,15.0,1,Neutral,Online,1.96
+RESP1020,2024-01-21,Japan,35-44,Male,13.0,0,Very Likely,Online,1.403
+RESP1021,2024-01-22,USA,18-24,Other,75.0,10,Very Unlikely,Social,0.836
+RESP1022,2024-01-23,France,45-54,Other,86.0,3,Likely,Mobile,1.733
+RESP1023,2024-01-24,UK,55+,Other,14.0,7,Very Unlikely,Retail,1.018
+RESP1024,2024-01-25,Australia,45-54,,91.0,1,Very Unlikely,Social,1.021
+RESP1025,2024-01-26,Japan,55+,Male,97.0,2,Very Likely,Online,0.548
+RESP1026,2024-01-27,France,55+,Other,65.0,0,Likely,Online,1.323
+RESP1027,2024-01-28,USA,35-44,Male,31.0,0,,Mobile,1.302
+RESP1028,2024-01-29,USA,55+,Female,86.0,2,Likely,Online,1.034
+RESP1029,2024-01-30,Germany,45-54,Female,62.0,10,Neutral,Retail,1.841
+RESP1030,2024-01-31,Germany,55+,,,4,Very Likely,Mobile,0.693
+RESP1031,2024-02-01,UK,35-44,Female,50.0,2,Likely,Online,0.995
+RESP1032,2024-02-02,France,35-44,Male,24.0,0,Neutral,Mobile,0.982
+RESP1033,2024-02-03,France,45-54,Other,57.0,0,Unlikely,Online,0.638
+RESP1034,2024-02-04,Australia,25-34,Male,62.0,7,Unlikely,Online,1.222
+RESP1035,2024-02-05,Australia,25-34,Male,61.0,9,Neutral,Online,1.532
+RESP1036,2024-02-06,Australia,55+,Female,21.0,10,Neutral,Retail,1.267
+RESP1037,2024-02-07,Germany,18-24,Female,57.0,1,Very Likely,Retail,0.735
+RESP1038,2024-02-08,France,55+,Female,57.0,2,Very Likely,Mobile,1.066
+RESP1039,2024-02-09,France,45-54,Female,85.0,1,Unlikely,Online,0.504
+RESP1040,2024-02-10,USA,45-54,Female,48.0,2,Likely,Online,1.802
+RESP1041,2024-02-11,Germany,45-54,Other,51.0,6,Unlikely,Retail,0.627
+RESP1042,2024-02-12,Japan,45-54,Male,,0,Likely,Online,1.396
+RESP1043,2024-02-13,Germany,45-54,Male,69.0,9,Likely,Retail,1.979
+RESP1044,2024-02-14,Japan,35-44,Male,14.0,7,Very Likely,Online,1.305
+RESP1045,2024-02-15,USA,25-34,Male,,9,Very Unlikely,Mobile,1.886
+RESP1046,2024-02-16,UK,45-54,Female,59.0,9,Very Unlikely,Online,0.854
+RESP1047,2024-02-17,France,18-24,Male,100.0,9,Neutral,Online,1.64
+RESP1048,2024-02-18,USA,,Other,96.0,1,Very Likely,Social,1.297
+RESP1049,2024-02-19,France,18-24,Other,7.0,2,Likely,Retail,1.581
+RESP1050,2024-02-20,Australia,18-24,Male,52.0,8,Very Unlikely,Online,0.594
+RESP1051,2024-02-21,UK,35-44,Male,59.0,6,Likely,Online,0.722
+RESP1052,2024-02-22,UK,18-24,Other,4.0,3,Very Unlikely,Social,0.7
+RESP1053,2024-02-23,USA,45-54,Other,67.0,9,Very Unlikely,Social,1.531
+RESP1054,2024-02-24,UK,55+,Female,5.0,4,Very Unlikely,Retail,1.767
+RESP1055,2024-02-25,Japan,18-24,Other,95.0,1,Very Likely,Social,1.624
+RESP1056,2024-02-26,UK,35-44,Female,93.0,10,Unlikely,Mobile,0.546
+RESP1057,2024-02-27,France,35-44,Female,46.0,7,Likely,Social,1.801
+RESP1058,2024-02-28,France,18-24,Female,98.0,3,Very Likely,Mobile,1.031
+RESP1059,2024-02-29,France,55+,Female,54.0,8,Very Likely,Retail,1.096
+RESP1060,2024-03-01,France,18-24,Female,39.0,4,Very Likely,Retail,0.657
+RESP1061,2024-03-02,Japan,35-44,,51.0,8,Very Likely,Retail,1.606
+RESP1062,2024-03-03,Germany,25-34,Other,15.0,3,Very Likely,Retail,0.773
+RESP1063,2024-03-04,Australia,45-54,Female,12.0,9,Neutral,Retail,1.346
+RESP1064,2024-03-05,USA,35-44,Other,29.0,4,Likely,Mobile,1.761
+RESP1065,2024-03-06,France,,Other,18.0,8,Very Likely,Mobile,0.634
+RESP1066,2024-03-07,UK,,Female,16.0,7,Likely,Retail,1.303
+RESP1067,2024-03-08,France,18-24,Male,62.0,2,Neutral,Social,0.85
+RESP1068,2024-03-09,UK,18-24,Female,18.0,0,Neutral,Online,1.014
+RESP1069,2024-03-10,Australia,25-34,,91.0,2,,Retail,1.211
+RESP1070,2024-03-11,Australia,45-54,Other,57.0,3,Very Unlikely,Social,1.033
+RESP1071,2024-03-12,Australia,45-54,Male,54.0,1,,Online,1.473
+RESP1072,2024-03-13,UK,25-34,Male,89.0,0,Very Unlikely,Retail,1.219
+RESP1073,2024-03-14,France,35-44,Male,100.0,6,Very Unlikely,Retail,1.376
+RESP1074,2024-03-15,Australia,18-24,Other,89.0,7,Very Unlikely,Mobile,1.605
+RESP1075,2024-03-16,Japan,55+,Other,61.0,6,Very Likely,Online,1.337
+RESP1076,2024-03-17,UK,18-24,Male,22.0,4,Neutral,Online,1.38
+RESP1077,2024-03-18,UK,18-24,Male,8.0,0,Very Unlikely,Social,1.347
+RESP1078,2024-03-19,France,35-44,Female,11.0,6,Neutral,Mobile,1.068
+RESP1079,2024-03-20,UK,18-24,Male,0.0,6,Likely,Mobile,1.006
+RESP1080,2024-03-21,UK,25-34,Female,57.0,8,Unlikely,Mobile,1.849
+RESP1081,2024-03-22,Australia,25-34,Male,0.0,2,Likely,Mobile,1.411
+RESP1082,2024-03-23,France,45-54,Female,33.0,8,Likely,Online,0.867
+RESP1083,2024-03-24,Australia,55+,Other,95.0,0,Very Likely,Online,1.247
+RESP1084,2024-03-25,Australia,18-24,Male,47.0,0,Unlikely,Retail,0.996
+RESP1085,2024-03-26,France,18-24,Male,88.0,3,Likely,Retail,1.901
+RESP1086,2024-03-27,USA,35-44,Male,0.0,8,Likely,Mobile,0.511
+RESP1087,2024-03-28,Australia,25-34,Male,15.0,5,Unlikely,Mobile,0.838
+RESP1088,2024-03-29,Japan,55+,Female,60.0,10,Unlikely,Mobile,1.048
+RESP1089,2024-03-30,Japan,45-54,Male,63.0,2,Likely,Retail,1.232
+RESP1090,2024-03-31,UK,25-34,Other,,0,Unlikely,Social,1.776
+RESP1091,2024-04-01,Japan,45-54,Other,68.0,3,Likely,Social,0.632
+RESP1092,2024-04-02,UK,35-44,Male,21.0,8,Likely,Retail,1.709
+RESP1093,2024-04-03,USA,,Other,92.0,2,Very Likely,Retail,0.583
+RESP1094,2024-04-04,France,18-24,Male,66.0,8,Very Unlikely,Retail,1.763
+RESP1095,2024-04-05,France,55+,Male,75.0,6,,Retail,0.577
+RESP1096,2024-04-06,France,45-54,Other,25.0,3,Neutral,Retail,0.527
+RESP1097,2024-04-07,Japan,25-34,Male,15.0,2,Very Unlikely,Retail,1.545
+RESP1098,2024-04-08,USA,35-44,Other,50.0,9,Very Unlikely,Mobile,1.996
+RESP1099,2024-04-09,Japan,18-24,Female,100.0,4,Very Unlikely,Mobile,1.845
+RESP1100,2024-04-10,Japan,18-24,Male,85.0,4,Very Likely,Mobile,1.364
+RESP1101,2024-04-11,USA,45-54,Female,56.0,2,Likely,Mobile,1.876
+RESP1102,2024-04-12,USA,35-44,Other,28.0,8,Very Likely,Retail,0.508
+RESP1103,2024-04-13,USA,55+,Female,77.0,3,Likely,Social,1.963
+RESP1104,2024-04-14,USA,35-44,Female,91.0,10,Very Likely,Online,1.236
+RESP1105,2024-04-15,France,45-54,Other,68.0,4,Very Likely,Retail,1.584
+RESP1106,2024-04-16,Germany,45-54,Female,46.0,3,Neutral,Online,1.731
+RESP1107,2024-04-17,Germany,35-44,Female,93.0,4,Very Likely,Social,1.578
+RESP1108,2024-04-18,USA,45-54,Other,61.0,6,Unlikely,Mobile,1.303
+RESP1109,2024-04-19,Germany,35-44,Female,68.0,8,Neutral,Social,1.215
+RESP1110,2024-04-20,Germany,25-34,Other,75.0,6,Very Likely,Retail,1.758
+RESP1111,2024-04-21,USA,35-44,Female,15.0,4,Very Unlikely,Mobile,0.808
+RESP1112,2024-04-22,Germany,35-44,Other,89.0,9,Unlikely,Retail,1.952
+RESP1113,2024-04-23,Japan,45-54,Other,89.0,9,Unlikely,Mobile,1.566
+RESP1114,2024-04-24,UK,45-54,Female,47.0,6,Unlikely,Online,0.799
+RESP1115,2024-04-25,UK,18-24,Female,84.0,9,Neutral,Online,1.604
+RESP1116,2024-04-26,USA,18-24,Female,38.0,4,Very Likely,Online,1.295
+RESP1117,2024-04-27,France,25-34,Male,99.0,2,Very Likely,Social,1.561
+RESP1118,2024-04-28,USA,18-24,Male,32.0,6,Very Unlikely,Retail,1.652
+RESP1119,2024-04-29,France,35-44,Male,93.0,10,Very Unlikely,Social,0.631

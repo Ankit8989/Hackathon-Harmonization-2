@@ -1,0 +1,41 @@
+respondent_id,survey_date,country,age,gender,satisfaction_score,nps_score,purchase_intent,channel
+3000,2024-10-01,UK,35-44,Female,9,3,Very Likely,Retail
+3001,2024-10-02,USA,18-24,Female,9,7,Very Likely,Social
+3002,2024-10-03,Japan,45-54,Other,7,5,Unlikely,Retail
+3003,2024-10-04,Germany,35-44,Other,3,8,Unlikely,Social
+3004,2024-10-05,USA,35-44,Male,8,5,Neutral,Social
+3005,2024-10-06,Germany,25-34,Male,3,2,Likely,Retail
+3006,2024-10-07,UK,35-44,Male,4,5,Very Unlikely,Mobile
+3007,2024-10-08,UK,35-44,Other,4,3,Very Unlikely,Mobile
+3008,2024-10-09,France,18-24,Male,2,5,Unlikely,Online
+3009,2024-10-10,USA,18-24,Male,5,8,Neutral,Mobile
+3010,2024-10-11,Japan,18-24,Female,2,1,Neutral,Mobile
+3011,2024-10-12,France,25-34,Other,8,8,Neutral,Online
+3012,2024-10-13,France,35-44,Male,8,0,Unlikely,Retail
+3013,2024-10-14,France,45-54,Male,7,2,Very Unlikely,Retail
+3014,2024-10-15,Japan,45-54,Female,9,7,Neutral,Mobile
+3015,2024-10-16,Japan,25-34,Female,9,4,Neutral,Mobile
+3016,2024-10-17,Japan,18-24,Female,6,9,Unlikely,Mobile
+3017,2024-10-18,France,35-44,Other,4,5,Very Unlikely,Retail
+3018,2024-10-19,USA,55+,Female,4,6,Likely,Retail
+3019,2024-10-20,France,18-24,Other,2,1,Likely,Retail
+3020,2024-10-21,Japan,35-44,Female,3,6,Very Likely,Social
+3021,2024-10-22,UK,18-24,Female,4,9,Very Unlikely,Retail
+3022,2024-10-23,Germany,18-24,Other,8,8,Neutral,Retail
+3023,2024-10-24,UK,55+,Female,5,9,Unlikely,Retail
+3024,2024-10-25,UK,35-44,Female,5,5,Very Likely,Social
+3025,2024-10-26,France,55+,Other,4,4,Likely,Social
+3026,2024-10-27,USA,45-54,Other,8,6,Very Unlikely,Online
+3027,2024-10-28,UK,35-44,Female,8,7,Unlikely,Social
+3028,2024-10-29,Germany,18-24,Male,3,9,Neutral,Social
+3029,2024-10-30,UK,55+,Other,1,7,Unlikely,Online
+3030,2024-10-31,Germany,45-54,Other,1,5,Neutral,Mobile
+3031,2024-11-01,Germany,18-24,Male,1,10,Very Likely,Mobile
+3032,2024-11-02,Germany,25-34,Other,6,7,Likely,Online
+3033,2024-11-03,Japan,35-44,Female,9,1,Neutral,Mobile
+3034,2024-11-04,France,25-34,Female,3,1,Very Likely,Online
+3035,2024-11-05,Japan,45-54,Female,5,8,Unlikely,Mobile
+3036,2024-11-06,UK,45-54,Male,3,7,Likely,Retail
+3037,2024-11-07,UK,18-24,Female,7,9,Very Unlikely,Online
+3038,2024-11-08,UK,45-54,Other,4,6,Neutral,Retail
+3039,2024-11-09,Germany,25-34,Other,8,4,Very Unlikely,Retail

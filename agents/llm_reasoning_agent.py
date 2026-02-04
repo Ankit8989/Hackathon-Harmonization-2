@@ -1,0 +1,595 @@
+"""
+LLM Reasoning Agent for the Agentic AI Data Harmonization System.
+Provides shared LLM-based reasoning capabilities for all agents.
+"""
+
+import json
+import re
+from typing import Any, Dict, List, Optional, Tuple
+
+from agents.base_agent import BaseAgent
+from config import AZURE_CONFIG
+from models.schemas import AgentResponse, ProcessingStatus
+
+
+class LLMReasoningAgent(BaseAgent):
+    """
+    Shared LLM reasoning utility agent.
+    
+    Provides common LLM-based analysis capabilities:
+    - Column mapping inference
+    - Anomaly explanation
+    - Ambiguity resolution
+    - Data quality analysis
+    - Schema inference
+    """
+    
+    PROMPT_TEMPLATES = {
+        "column_mapping": """You are a data engineering expert analyzing column mappings between a source dataset and a master schema.
+
+TASK: Analyze the following columns and determine the best mappings.
+
+SOURCE COLUMNS:
+{source_columns}
+
+MASTER SCHEMA COLUMNS:
+{master_columns}
+
+For each source column, determine:
+1. The most likely matching master column (or "UNMAPPED" if no match)
+2. Confidence score (0.0 to 1.0)
+3. Reasoning for the mapping
+4. Any transformation needed
+
+RESPOND IN STRICT JSON FORMAT:
+{{
+    "mappings": [
+        {{
+            "source_column": "source_col_name",
+            "target_column": "target_col_name or UNMAPPED",
+            "confidence": 0.95,
+            "reasoning": "explanation",
+            "transformation": "description of transformation needed or null"
+        }}
+    ],
+    "unmapped_source": ["list of source columns with no match"],
+    "missing_required": ["list of required master columns not found in source"],
+    "overall_confidence": 0.85,
+    "analysis_summary": "overall analysis"
+}}""",
+
+        "anomaly_explanation": """You are a data quality expert analyzing anomalies in a dataset.
+
+TASK: Analyze the following data anomalies and provide explanations.
+
+COLUMN: {column_name}
+DATA TYPE: {data_type}
+EXPECTED RANGE: {expected_range}
+
+ANOMALIES DETECTED:
+{anomalies}
+
+SAMPLE VALUES:
+{sample_values}
+
+For each anomaly type, provide:
+1. Likely root cause
+2. Business impact assessment
+3. Recommended action (fix, flag, or ignore)
+4. Confidence in the assessment
+
+RESPOND IN STRICT JSON FORMAT:
+{{
+    "anomaly_analysis": [
+        {{
+            "anomaly_type": "type of anomaly",
+            "root_cause": "likely cause",
+            "business_impact": "impact description",
+            "recommended_action": "fix|flag|ignore",
+            "fix_suggestion": "how to fix if applicable",
+            "confidence": 0.85
+        }}
+    ],
+    "overall_severity": "blocking|fixable|ignorable",
+    "summary": "overall analysis summary"
+}}""",
+
+        "ambiguity_resolution": """You are a data harmonization expert resolving ambiguous data mappings.
+
+TASK: Resolve the following ambiguous mapping situation.
+
+SOURCE COLUMN: {source_column}
+SAMPLE VALUES: {sample_values}
+
+CANDIDATE TARGETS:
+{candidate_targets}
+
+CONTEXT:
+{context}
+
+Determine the best target mapping considering:
+1. Semantic similarity
+2. Data type compatibility
+3. Value patterns
+4. Business context
+
+RESPOND IN STRICT JSON FORMAT:
+{{
+    "selected_target": "best_target_column",
+    "confidence": 0.85,
+    "reasoning": "detailed explanation",
+    "alternative_targets": [
+        {{
+            "target": "alternative_column",
+            "confidence": 0.65,
+            "why_not_selected": "reason"
+        }}
+    ],
+    "transformation_needed": "description or null",
+    "warnings": ["any warnings about this mapping"]
+}}""",
+
+        "data_quality_analysis": """You are a data quality analyst reviewing a dataset summary.
+
+TASK: Analyze the following data quality metrics and provide recommendations.
+
+DATASET SUMMARY:
+{dataset_summary}
+
+COLUMN STATISTICS:
+{column_statistics}
+
+BUSINESS RULES:
+{business_rules}
+
+Analyze:
+1. Overall data quality assessment
+2. Critical issues that block processing
+3. Issues that can be auto-fixed
+4. Issues that can be safely ignored
+5. Recommendations for improvement
+
+RESPOND IN STRICT JSON FORMAT:
+{{
+    "overall_quality_score": 85.5,
+    "is_acceptable": true,
+    "critical_issues": [
+        {{
+            "issue": "description",
+            "column": "column_name",
+            "severity": "blocking",
+            "recommendation": "what to do"
+        }}
+    ],
+    "fixable_issues": [...],
+    "ignorable_issues": [...],
+    "recommendations": ["list of recommendations"],
+    "summary": "overall summary"
+}}""",
+
+        "schema_inference": """You are a data architect inferring schema information from data samples.
+
+TASK: Analyze the following data samples and infer the schema.
+
+COLUMN: {column_name}
+SAMPLE VALUES: {sample_values}
+VALUE COUNTS: {value_counts}
+
+Determine:
+1. Most likely data type
+2. Whether it's categorical or continuous
+3. Probable constraints (min, max, allowed values)
+4. Suggested canonical name
+5. Any data quality concerns
+
+RESPOND IN STRICT JSON FORMAT:
+{{
+    "inferred_type": "string|integer|float|boolean|datetime|categorical",
+    "is_categorical": true,
+    "suggested_canonical_name": "snake_case_name",
+    "constraints": {{
+        "min_value": null,
+        "max_value": null,
+        "allowed_values": ["list"] or null,
+        "pattern": "regex pattern or null"
+    }},
+    "quality_concerns": ["list of concerns"],
+    "confidence": 0.90,
+    "reasoning": "explanation"
+}}""",
+
+        "transformation_suggestion": """You are a data transformation expert.
+
+TASK: Suggest transformations to convert source data to target format.
+
+SOURCE COLUMN: {source_column}
+SOURCE TYPE: {source_type}
+SOURCE SAMPLES: {source_samples}
+
+TARGET COLUMN: {target_column}
+TARGET TYPE: {target_type}
+TARGET CONSTRAINTS: {target_constraints}
+
+Provide transformation logic that:
+1. Converts data types appropriately
+2. Handles edge cases
+3. Preserves data integrity
+4. Handles null/missing values
+
+RESPOND IN STRICT JSON FORMAT:
+{{
+    "transformation_type": "scale_normalize|value_map|type_cast|date_format|custom",
+    "transformation_logic": "description of transformation",
+    "python_expression": "pandas expression to apply",
+    "handles_nulls": true,
+    "potential_data_loss": false,
+    "confidence": 0.90,
+    "warnings": ["any warnings"]
+}}"""
+    }
+    
+    def __init__(self):
+        """Initialize the LLM Reasoning Agent"""
+        super().__init__(
+            name="LLMReasoningAgent",
+            confidence_threshold=0.80,
+            max_retries=3
+        )
+    
+    def get_prompt_template(self) -> str:
+        """Get the default prompt template"""
+        return self.PROMPT_TEMPLATES["column_mapping"]
+    
+    def execute(self, *args, **kwargs) -> AgentResponse:
+        """
+        Execute is not directly used - this agent provides utility methods.
+        """
+        raise NotImplementedError(
+            "LLMReasoningAgent provides utility methods, not direct execution. "
+            "Use specific methods like infer_column_mappings() instead."
+        )
+    
+    def infer_column_mappings(
+        self,
+        source_columns: List[Dict[str, Any]],
+        master_columns: List[Dict[str, Any]]
+    ) -> Tuple[Dict[str, Any], float]:
+        """
+        Use LLM to infer mappings between source and master columns.
+        
+        Args:
+            source_columns: List of source column info dicts
+            master_columns: List of master schema column info dicts
+            
+        Returns:
+            Tuple of (mapping results dict, tokens used)
+        """
+        self.logger.info("Inferring column mappings with LLM")
+        
+        prompt = self.PROMPT_TEMPLATES["column_mapping"].format(
+            source_columns=json.dumps(source_columns, indent=2),
+            master_columns=json.dumps(master_columns, indent=2)
+        )
+        
+        messages = [
+            {"role": "system", "content": "You are a data engineering expert. Always respond in valid JSON format."},
+            {"role": "user", "content": prompt}
+        ]
+        
+        response, tokens = self.call_llm(messages, purpose="column_mapping_inference")
+        
+        # Parse JSON response
+        result = self._parse_json_response(response)
+        
+        self.add_audit_entry(
+            action="Inferred column mappings",
+            status=ProcessingStatus.COMPLETED,
+            confidence_score=result.get("overall_confidence", 0),
+            details=f"Mapped {len(result.get('mappings', []))} columns"
+        )
+        
+        return result, tokens
+    
+    def explain_anomalies(
+        self,
+        column_name: str,
+        data_type: str,
+        expected_range: str,
+        anomalies: List[Dict[str, Any]],
+        sample_values: List[Any]
+    ) -> Tuple[Dict[str, Any], float]:
+        """
+        Use LLM to explain detected anomalies.
+        
+        Args:
+            column_name: Name of the column with anomalies
+            data_type: Data type of the column
+            expected_range: Expected value range
+            anomalies: List of detected anomalies
+            sample_values: Sample values from the column
+            
+        Returns:
+            Tuple of (analysis result dict, tokens used)
+        """
+        self.logger.info(f"Analyzing anomalies for column: {column_name}")
+        
+        prompt = self.PROMPT_TEMPLATES["anomaly_explanation"].format(
+            column_name=column_name,
+            data_type=data_type,
+            expected_range=expected_range,
+            anomalies=json.dumps(anomalies, indent=2),
+            sample_values=json.dumps(sample_values[:20], default=str)
+        )
+        
+        messages = [
+            {"role": "system", "content": "You are a data quality expert. Always respond in valid JSON format."},
+            {"role": "user", "content": prompt}
+        ]
+        
+        response, tokens = self.call_llm(messages, purpose="anomaly_explanation")
+        
+        result = self._parse_json_response(response)
+        
+        self.add_audit_entry(
+            action=f"Explained anomalies for {column_name}",
+            status=ProcessingStatus.COMPLETED,
+            confidence_score=result.get("anomaly_analysis", [{}])[0].get("confidence", 0) if result.get("anomaly_analysis") else 0
+        )
+        
+        return result, tokens
+    
+    def resolve_ambiguity(
+        self,
+        source_column: str,
+        sample_values: List[Any],
+        candidate_targets: List[Dict[str, Any]],
+        context: str = ""
+    ) -> Tuple[Dict[str, Any], float]:
+        """
+        Use LLM to resolve ambiguous column mappings.
+        
+        Args:
+            source_column: Source column name
+            sample_values: Sample values from the source column
+            candidate_targets: List of potential target column info
+            context: Additional context for decision making
+            
+        Returns:
+            Tuple of (resolution result dict, tokens used)
+        """
+        self.logger.info(f"Resolving ambiguity for column: {source_column}")
+        
+        prompt = self.PROMPT_TEMPLATES["ambiguity_resolution"].format(
+            source_column=source_column,
+            sample_values=json.dumps(sample_values[:15], default=str),
+            candidate_targets=json.dumps(candidate_targets, indent=2),
+            context=context or "No additional context provided"
+        )
+        
+        messages = [
+            {"role": "system", "content": "You are a data harmonization expert. Always respond in valid JSON format."},
+            {"role": "user", "content": prompt}
+        ]
+        
+        response, tokens = self.call_llm(messages, purpose="ambiguity_resolution")
+        
+        result = self._parse_json_response(response)
+        
+        self.add_audit_entry(
+            action=f"Resolved ambiguity for {source_column}",
+            status=ProcessingStatus.COMPLETED,
+            confidence_score=result.get("confidence", 0),
+            details=f"Selected target: {result.get('selected_target', 'unknown')}"
+        )
+        
+        return result, tokens
+    
+    def analyze_data_quality(
+        self,
+        dataset_summary: Dict[str, Any],
+        column_statistics: List[Dict[str, Any]],
+        business_rules: List[str]
+    ) -> Tuple[Dict[str, Any], float]:
+        """
+        Use LLM to perform comprehensive data quality analysis.
+        
+        Args:
+            dataset_summary: Summary of the dataset
+            column_statistics: Statistics for each column
+            business_rules: List of business rules to check
+            
+        Returns:
+            Tuple of (analysis result dict, tokens used)
+        """
+        self.logger.info("Performing LLM-based data quality analysis")
+        
+        prompt = self.PROMPT_TEMPLATES["data_quality_analysis"].format(
+            dataset_summary=json.dumps(dataset_summary, indent=2),
+            column_statistics=json.dumps(column_statistics[:20], indent=2),  # Limit to avoid token overflow
+            business_rules=json.dumps(business_rules)
+        )
+        
+        messages = [
+            {"role": "system", "content": "You are a data quality analyst. Always respond in valid JSON format."},
+            {"role": "user", "content": prompt}
+        ]
+        
+        response, tokens = self.call_llm(messages, purpose="data_quality_analysis")
+        
+        result = self._parse_json_response(response)
+        
+        self.add_audit_entry(
+            action="Completed LLM data quality analysis",
+            status=ProcessingStatus.COMPLETED,
+            confidence_score=result.get("overall_quality_score", 0) / 100,
+            details=f"Quality score: {result.get('overall_quality_score', 0)}"
+        )
+        
+        return result, tokens
+    
+    def infer_schema(
+        self,
+        column_name: str,
+        sample_values: List[Any],
+        value_counts: Dict[str, int]
+    ) -> Tuple[Dict[str, Any], float]:
+        """
+        Use LLM to infer schema for a column.
+        
+        Args:
+            column_name: Name of the column
+            sample_values: Sample values from the column
+            value_counts: Value frequency counts
+            
+        Returns:
+            Tuple of (inferred schema dict, tokens used)
+        """
+        self.logger.info(f"Inferring schema for column: {column_name}")
+        
+        prompt = self.PROMPT_TEMPLATES["schema_inference"].format(
+            column_name=column_name,
+            sample_values=json.dumps(sample_values[:30], default=str),
+            value_counts=json.dumps(dict(list(value_counts.items())[:20]))
+        )
+        
+        messages = [
+            {"role": "system", "content": "You are a data architect. Always respond in valid JSON format."},
+            {"role": "user", "content": prompt}
+        ]
+        
+        response, tokens = self.call_llm(messages, purpose="schema_inference")
+        
+        result = self._parse_json_response(response)
+        
+        self.add_audit_entry(
+            action=f"Inferred schema for {column_name}",
+            status=ProcessingStatus.COMPLETED,
+            confidence_score=result.get("confidence", 0)
+        )
+        
+        return result, tokens
+    
+    def suggest_transformation(
+        self,
+        source_column: str,
+        source_type: str,
+        source_samples: List[Any],
+        target_column: str,
+        target_type: str,
+        target_constraints: Dict[str, Any]
+    ) -> Tuple[Dict[str, Any], float]:
+        """
+        Use LLM to suggest data transformation logic.
+        
+        Args:
+            source_column: Source column name
+            source_type: Source data type
+            source_samples: Sample source values
+            target_column: Target column name
+            target_type: Target data type
+            target_constraints: Target constraints
+            
+        Returns:
+            Tuple of (transformation suggestion dict, tokens used)
+        """
+        self.logger.info(f"Suggesting transformation: {source_column} -> {target_column}")
+        
+        prompt = self.PROMPT_TEMPLATES["transformation_suggestion"].format(
+            source_column=source_column,
+            source_type=source_type,
+            source_samples=json.dumps(source_samples[:20], default=str),
+            target_column=target_column,
+            target_type=target_type,
+            target_constraints=json.dumps(target_constraints)
+        )
+        
+        messages = [
+            {"role": "system", "content": "You are a data transformation expert. Always respond in valid JSON format."},
+            {"role": "user", "content": prompt}
+        ]
+        
+        response, tokens = self.call_llm(messages, purpose="transformation_suggestion")
+        
+        result = self._parse_json_response(response)
+        
+        self.add_audit_entry(
+            action=f"Suggested transformation for {source_column}",
+            status=ProcessingStatus.COMPLETED,
+            confidence_score=result.get("confidence", 0)
+        )
+        
+        return result, tokens
+    
+    def _parse_json_response(self, response: str) -> Dict[str, Any]:
+        """
+        Parse JSON from LLM response, handling common issues.
+        
+        Args:
+            response: Raw LLM response string
+            
+        Returns:
+            Parsed dictionary
+        """
+        try:
+            # Try direct parsing first
+            return json.loads(response)
+        except json.JSONDecodeError:
+            # Try to extract JSON from markdown code blocks
+            json_match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', response)
+            if json_match:
+                try:
+                    return json.loads(json_match.group(1))
+                except json.JSONDecodeError:
+                    pass
+            
+            # Try to find JSON object in the response
+            json_match = re.search(r'\{[\s\S]*\}', response)
+            if json_match:
+                try:
+                    return json.loads(json_match.group())
+                except json.JSONDecodeError:
+                    pass
+            
+            self.logger.warning("Failed to parse LLM response as JSON, returning raw response")
+            return {"raw_response": response, "parse_error": True}
+    
+    def custom_reasoning(
+        self,
+        prompt: str,
+        system_message: str = "You are an AI assistant helping with data analysis."
+    ) -> Tuple[str, int]:
+        """
+        Perform custom LLM reasoning with a specific prompt.
+        
+        Args:
+            prompt: The user prompt
+            system_message: The system message
+            
+        Returns:
+            Tuple of (response content, tokens used)
+        """
+        messages = [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": prompt}
+        ]
+        
+        return self.call_llm(messages, purpose="custom_reasoning")
+
+
+# Singleton instance for shared usage
+_llm_agent_instance: Optional[LLMReasoningAgent] = None
+
+
+def get_llm_reasoning_agent() -> LLMReasoningAgent:
+    """
+    Get the singleton LLM Reasoning Agent instance.
+    
+    Returns:
+        LLMReasoningAgent instance
+    """
+    global _llm_agent_instance
+    if _llm_agent_instance is None:
+        _llm_agent_instance = LLMReasoningAgent()
+    return _llm_agent_instance
+
+

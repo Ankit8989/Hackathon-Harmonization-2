@@ -1,0 +1,181 @@
+respondent_id,survey_date,country,age,gender,satisfaction_score,nps_score,purchase_intent,channel
+2000,2024-06-01,France,35 to 44,M,30,10,Very Unlikely,Online
+2001,2024-06-02,Netherlands,55 plus,F,55,3,Neutral,Mobile
+2002,2024-06-03,Japan,18 to 24,F,60,2,Very Unlikely,Mobile
+2003,2024-06-04,UK,45 to 54,M,21,2,Likely,Retail
+2004,2024-06-05,Australia,25 to 34,M,94,7,Neutral,Social
+2005,2024-06-06,India,25 to 34,M,26,2,Neutral,Social
+2006,2024-06-07,India,18 to 24,M,61,6,Likely,Mobile
+2007,2024-06-08,Spain,25 to 34,F,24,4,Very Unlikely,Social
+2008,2024-06-09,France,35 to 44,Other,43,9,Neutral,Online
+2009,2024-06-10,Japan,45 to 54,F,23,1,Very Unlikely,Online
+2010,2024-06-11,USA,25 to 34,Other,80,0,Likely,Online
+2011,2024-06-12,Brazil,35 to 44,Other,5,3,Very Unlikely,Mobile
+2012,2024-06-13,Spain,18 to 24,F,46,4,Likely,Mobile
+2013,2024-06-14,Australia,18 to 24,Other,15,7,Likely,Online
+2014,2024-06-15,UK,35 to 44,M,96,4,Neutral,Online
+2015,2024-06-16,Belgium,55 plus,M,76,9,Very Unlikely,Mobile
+2016,2024-06-17,Canada,18 to 24,Other,73,3,Likely,Retail
+2017,2024-06-18,Australia,35 to 44,Other,20,3,Unlikely,Retail
+2018,2024-06-19,Canada,35 to 44,Other,47,7,Very Unlikely,Mobile
+2019,2024-06-20,China,18 to 24,M,56,0,Likely,Mobile
+2020,2024-06-21,Germany,25 to 34,M,1,0,Unlikely,Social
+2021,2024-06-22,Canada,45 to 54,M,60,6,Very Likely,Social
+2022,2024-06-23,Spain,25 to 34,F,43,4,Likely,Online
+2023,2024-06-24,France,18 to 24,Other,10,3,Unlikely,Social
+2024,2024-06-25,Spain,18 to 24,Other,77,10,Neutral,Social
+2025,2024-06-26,Italy,25 to 34,Other,56,4,Very Unlikely,Mobile
+2026,2024-06-27,India,25 to 34,M,56,8,Neutral,Social
+2027,2024-06-28,Australia,18 to 24,M,65,3,Very Likely,Online
+2028,2024-06-29,India,35 to 44,F,12,8,Unlikely,Mobile
+2029,2024-06-30,Japan,55 plus,Other,10,3,Very Likely,Online
+2030,2024-07-01,China,45 to 54,M,10,2,Neutral,Retail
+2031,2024-07-02,Australia,35 to 44,Other,50,1,Neutral,Mobile
+2032,2024-07-03,UK,25 to 34,Other,49,6,Neutral,Online
+2033,2024-07-04,Canada,45 to 54,Other,74,9,Likely,Retail
+2034,2024-07-05,France,55 plus,F,41,7,Neutral,Retail
+2035,2024-07-06,Australia,18 to 24,F,67,6,Very Unlikely,Social
+2036,2024-07-07,USA,45 to 54,M,73,2,Unlikely,Retail
+2037,2024-07-08,UK,45 to 54,M,52,4,Very Likely,Social
+2038,2024-07-09,Germany,45 to 54,Other,24,1,Very Unlikely,Mobile
+2039,2024-07-10,France,45 to 54,Other,37,5,Unlikely,Mobile
+2040,2024-07-11,USA,45 to 54,M,78,8,Very Likely,Mobile
+2041,2024-07-12,Japan,55 plus,M,34,8,Likely,Retail
+2042,2024-07-13,Italy,25 to 34,Other,31,5,Very Unlikely,Mobile
+2043,2024-07-14,France,35 to 44,Other,74,8,Very Unlikely,Online
+2044,2024-07-15,UK,45 to 54,F,98,9,Neutral,Mobile
+2045,2024-07-16,USA,25 to 34,F,80,10,Neutral,Mobile
+2046,2024-07-17,Australia,55 plus,F,71,2,Very Likely,Retail
+2047,2024-07-18,Japan,55 plus,Other,99,3,Very Likely,Retail
+2048,2024-07-19,Japan,55 plus,F,84,4,Very Likely,Social
+2049,2024-07-20,Germany,35 to 44,Other,99,7,Very Likely,Social
+2050,2024-07-21,Canada,55 plus,M,86,4,Unlikely,Online
+2051,2024-07-22,Belgium,18 to 24,M,55,6,Likely,Retail
+2052,2024-07-23,Germany,45 to 54,Other,64,5,Neutral,Online
+2053,2024-07-24,Spain,55 plus,Other,48,4,Very Likely,Online
+2054,2024-07-25,Belgium,18 to 24,F,86,4,Very Unlikely,Mobile
+2055,2024-07-26,Spain,35 to 44,M,82,4,Very Likely,Mobile
+2056,2024-07-27,France,35 to 44,F,50,9,Very Likely,Social
+2057,2024-07-28,India,18 to 24,Other,28,4,Likely,Online
+2058,2024-07-29,China,35 to 44,Other,17,3,Likely,Retail
+2059,2024-07-30,Canada,35 to 44,F,15,5,Very Unlikely,Social
+2060,2024-07-31,USA,18 to 24,Other,95,6,Very Unlikely,Online
+2061,2024-08-01,Brazil,45 to 54,M,35,6,Unlikely,Social
+2062,2024-08-02,UK,35 to 44,M,91,8,Neutral,Retail
+2063,2024-08-03,USA,25 to 34,Other,17,10,Unlikely,Retail
+2064,2024-08-04,UK,55 plus,Other,59,3,Unlikely,Social
+2065,2024-08-05,Netherlands,35 to 44,F,9,6,Neutral,Online
+2066,2024-08-06,China,25 to 34,M,2,7,Unlikely,Retail
+2067,2024-08-07,UK,25 to 34,F,9,7,Very Likely,Social
+2068,2024-08-08,Italy,55 plus,M,66,1,Unlikely,Mobile
+2069,2024-08-09,Australia,25 to 34,F,28,4,Very Likely,Social
+2070,2024-08-10,Spain,25 to 34,M,70,10,Unlikely,Mobile
+2071,2024-08-11,Japan,45 to 54,M,50,2,Very Unlikely,Online
+2072,2024-08-12,India,45 to 54,Other,53,9,Very Unlikely,Social
+2073,2024-08-13,France,18 to 24,F,40,2,Very Unlikely,Mobile
+2074,2024-08-14,France,35 to 44,F,34,0,Likely,Online
+2075,2024-08-15,Australia,35 to 44,F,63,1,Unlikely,Retail
+2076,2024-08-16,Canada,35 to 44,M,65,9,Neutral,Retail
+2077,2024-08-17,Belgium,45 to 54,M,92,4,Unlikely,Retail
+2078,2024-08-18,Belgium,55 plus,F,88,9,Unlikely,Social
+2079,2024-08-19,Brazil,35 to 44,Other,33,9,Unlikely,Mobile
+2080,2024-08-20,UK,55 plus,M,86,5,Very Unlikely,Mobile
+2081,2024-08-21,Belgium,25 to 34,F,47,10,Very Unlikely,Mobile
+2082,2024-08-22,Belgium,18 to 24,Other,1,0,Neutral,Mobile
+2083,2024-08-23,Brazil,18 to 24,Other,29,5,Unlikely,Retail
+2084,2024-08-24,China,25 to 34,F,42,4,Unlikely,Mobile
+2085,2024-08-25,Japan,35 to 44,Other,57,1,Very Unlikely,Mobile
+2086,2024-08-26,Canada,25 to 34,F,70,1,Very Likely,Retail
+2087,2024-08-27,Brazil,55 plus,Other,98,2,Unlikely,Mobile
+2088,2024-08-28,Germany,55 plus,M,34,3,Very Unlikely,Social
+2089,2024-08-29,Brazil,25 to 34,M,38,5,Unlikely,Online
+2090,2024-08-30,Canada,35 to 44,F,30,0,Very Likely,Mobile
+2091,2024-08-31,Japan,25 to 34,M,55,5,Unlikely,Social
+2092,2024-09-01,Spain,35 to 44,Other,47,9,Very Unlikely,Online
+2093,2024-09-02,France,35 to 44,M,45,9,Neutral,Retail
+2094,2024-09-03,Spain,35 to 44,F,25,3,Likely,Retail
+2095,2024-09-04,Japan,45 to 54,Other,23,8,Likely,Mobile
+2096,2024-09-05,Belgium,18 to 24,M,57,5,Unlikely,Social
+2097,2024-09-06,Canada,35 to 44,F,34,6,Very Likely,Retail
+2098,2024-09-07,Netherlands,35 to 44,F,8,3,Very Unlikely,Mobile
+2099,2024-09-08,USA,55 plus,F,61,9,Likely,Retail
+2100,2024-09-09,Italy,18 to 24,M,8,2,Very Likely,Retail
+2101,2024-09-10,Belgium,45 to 54,F,99,0,Very Likely,Social
+2102,2024-09-11,Netherlands,18 to 24,F,75,0,Neutral,Online
+2103,2024-09-12,China,18 to 24,M,52,0,Unlikely,Social
+2104,2024-09-13,Belgium,35 to 44,Other,57,4,Unlikely,Social
+2105,2024-09-14,Canada,18 to 24,M,43,1,Very Unlikely,Mobile
+2106,2024-09-15,Brazil,55 plus,F,55,3,Very Likely,Mobile
+2107,2024-09-16,China,18 to 24,M,10,6,Likely,Mobile
+2108,2024-09-17,Japan,25 to 34,M,52,1,Very Unlikely,Retail
+2109,2024-09-18,Brazil,18 to 24,M,21,8,Very Unlikely,Online
+2110,2024-09-19,USA,45 to 54,F,25,1,Very Unlikely,Online
+2111,2024-09-20,UK,35 to 44,Other,55,3,Likely,Retail
+2112,2024-09-21,China,55 plus,M,56,1,Very Unlikely,Social
+2113,2024-09-22,China,55 plus,F,45,4,Neutral,Online
+2114,2024-09-23,Italy,45 to 54,F,9,7,Likely,Social
+2115,2024-09-24,Brazil,45 to 54,Other,96,3,Very Likely,Mobile
+2116,2024-09-25,Germany,45 to 54,Other,75,10,Likely,Social
+2117,2024-09-26,Belgium,25 to 34,F,58,3,Unlikely,Mobile
+2118,2024-09-27,Netherlands,45 to 54,F,42,0,Unlikely,Mobile
+2119,2024-09-28,Italy,25 to 34,Other,38,8,Very Likely,Online
+2120,2024-09-29,Australia,45 to 54,M,96,8,Very Likely,Retail
+2121,2024-09-30,Japan,25 to 34,Other,40,9,Unlikely,Mobile
+2122,2024-10-01,Canada,55 plus,Other,74,9,Very Unlikely,Mobile
+2123,2024-10-02,China,55 plus,F,95,8,Likely,Online
+2124,2024-10-03,Netherlands,18 to 24,F,9,5,Likely,Social
+2125,2024-10-04,UK,18 to 24,Other,74,6,Neutral,Mobile
+2126,2024-10-05,France,35 to 44,F,4,10,Very Unlikely,Retail
+2127,2024-10-06,Italy,35 to 44,F,22,6,Unlikely,Online
+2128,2024-10-07,Spain,45 to 54,M,84,1,Very Unlikely,Online
+2129,2024-10-08,Brazil,25 to 34,Other,81,10,Very Unlikely,Online
+2130,2024-10-09,Germany,55 plus,Other,88,1,Neutral,Online
+2131,2024-10-10,USA,25 to 34,Other,83,10,Very Likely,Retail
+2132,2024-10-11,Germany,55 plus,Other,29,2,Neutral,Social
+2133,2024-10-12,Australia,35 to 44,F,49,4,Very Likely,Retail
+2134,2024-10-13,Spain,18 to 24,Other,41,5,Very Likely,Online
+2135,2024-10-14,Brazil,35 to 44,M,76,4,Unlikely,Online
+2136,2024-10-15,China,25 to 34,F,87,8,Very Likely,Online
+2137,2024-10-16,USA,25 to 34,Other,44,9,Likely,Social
+2138,2024-10-17,Australia,18 to 24,F,34,6,Very Unlikely,Retail
+2139,2024-10-18,Germany,25 to 34,Other,40,1,Likely,Social
+2140,2024-10-19,Belgium,45 to 54,F,40,3,Very Likely,Online
+2141,2024-10-20,Australia,25 to 34,Other,22,1,Neutral,Retail
+2142,2024-10-21,USA,25 to 34,M,6,8,Neutral,Retail
+2143,2024-10-22,Brazil,35 to 44,M,28,1,Neutral,Retail
+2144,2024-10-23,UK,25 to 34,Other,21,6,Very Unlikely,Retail
+2145,2024-10-24,India,18 to 24,Other,2,2,Very Likely,Online
+2146,2024-10-25,Germany,18 to 24,M,82,0,Unlikely,Retail
+2147,2024-10-26,Italy,45 to 54,M,63,10,Unlikely,Retail
+2148,2024-10-27,Italy,25 to 34,F,4,4,Neutral,Retail
+2149,2024-10-28,Netherlands,35 to 44,M,23,1,Likely,Social
+2150,2024-10-29,Canada,35 to 44,F,8,2,Neutral,Mobile
+2151,2024-10-30,Brazil,25 to 34,M,77,0,Likely,Online
+2152,2024-10-31,Canada,35 to 44,M,29,3,Very Unlikely,Mobile
+2153,2024-11-01,France,18 to 24,Other,26,3,Unlikely,Mobile
+2154,2024-11-02,Canada,35 to 44,F,78,7,Very Unlikely,Online
+2155,2024-11-03,UK,35 to 44,M,44,9,Likely,Mobile
+2156,2024-11-04,Canada,45 to 54,F,37,0,Neutral,Mobile
+2157,2024-11-05,Canada,45 to 54,F,27,9,Very Likely,Retail
+2158,2024-11-06,Japan,55 plus,Other,82,5,Very Likely,Mobile
+2159,2024-11-07,Spain,18 to 24,F,72,8,Unlikely,Mobile
+2160,2024-11-08,UK,18 to 24,F,45,0,Very Likely,Social
+2161,2024-11-09,Germany,35 to 44,Other,12,4,Very Unlikely,Retail
+2162,2024-11-10,Spain,18 to 24,M,82,1,Very Likely,Retail
+2163,2024-11-11,UK,18 to 24,M,45,7,Neutral,Online
+2164,2024-11-12,Netherlands,35 to 44,F,3,3,Very Likely,Online
+2165,2024-11-13,UK,55 plus,Other,83,6,Unlikely,Retail
+2166,2024-11-14,USA,35 to 44,M,79,9,Very Unlikely,Social
+2167,2024-11-15,France,45 to 54,Other,54,9,Neutral,Retail
+2168,2024-11-16,UK,45 to 54,Other,52,3,Very Likely,Online
+2169,2024-11-17,Spain,35 to 44,Other,17,8,Very Unlikely,Mobile
+2170,2024-11-18,USA,25 to 34,Other,64,0,Unlikely,Mobile
+2171,2024-11-19,Japan,25 to 34,F,95,4,Likely,Mobile
+2172,2024-11-20,Australia,45 to 54,Other,71,5,Likely,Social
+2173,2024-11-21,Spain,55 plus,Other,87,4,Unlikely,Social
+2174,2024-11-22,Spain,55 plus,F,46,9,Unlikely,Mobile
+2175,2024-11-23,Italy,18 to 24,F,90,7,Likely,Social
+2176,2024-11-24,Italy,25 to 34,M,93,2,Neutral,Retail
+2177,2024-11-25,Italy,25 to 34,F,54,0,Neutral,Mobile
+2178,2024-11-26,Australia,35 to 44,F,99,1,Very Unlikely,Social
+2179,2024-11-27,Netherlands,25 to 34,F,8,5,Very Unlikely,Retail

@@ -1,0 +1,20 @@
+dataset,column,inferred_type,missing_pct,unique_count,mean,median,mode,min,max,std,outlier_count,scale_consistency,distribution
+unclean_input,RID,integer,0.0,199,101.0,101.0,2.0,2.0,200.0,57.590508477236654,0.0,mixed,
+unclean_input,Age,integer,0.0,47,41.743718592964825,44.0,44.0,18.0,65.0,13.321572397909092,0.0,0-100,
+unclean_input,Gender,categorical,2.51,3,,,Female,,,,,,"{""Female"": 96, ""Male"": 95, ""Other"": 3}"
+unclean_input,Region,categorical,0.0,4,,,South,,,,,,"{""South"": 56, ""West"": 52, ""North"": 47, ""East"": 44}"
+unclean_input,BrandA_awareness,float,1.51,2,0.6326530612244898,1.0,1.0,0.0,1.0,0.4833166420185832,0.0,0-1,
+unclean_input,BrandA_usage,float,36.18,2,0.4566929133858268,0.0,0.0,0.0,1.0,0.500093729497496,0.0,0-1,
+unclean_input,BrandA_affinity,float,37.69,5,2.975806451612903,3.0,3.0,1.0,5.0,1.4226033028769518,0.0,1-5,
+unclean_input,BrandA_uniqueness,float,36.18,5,3.283464566929134,3.0,5.0,1.0,5.0,1.3852834091746473,0.0,1-5,
+unclean_input,BrandA_dynamism,float,36.18,5,3.094488188976378,3.0,2.0,1.0,5.0,1.4110283926482106,0.0,1-5,
+unclean_input,BrandB_awareness,float,1.51,2,0.6377551020408163,1.0,1.0,0.0,1.0,0.48187993102281573,0.0,0-1,
+unclean_input,BrandB_usage,float,35.68,2,0.578125,1.0,1.0,0.0,1.0,0.4957992831114808,0.0,0-1,
+unclean_input,BrandB_affinity,float,36.68,6,3.2222222222222223,3.0,3.0,1.0,10.0,1.474524405434587,1.0,0-10,
+unclean_input,BrandB_uniqueness,float,35.68,5,2.8359375,3.0,2.0,1.0,5.0,1.3385698311680962,0.0,1-5,
+unclean_input,BrandB_dynamism,float,35.68,5,2.84375,3.0,1.0,1.0,5.0,1.4765223026545249,0.0,1-5,
+unclean_input,BrandC_awareness,float,4.52,2,0.6368421052631579,1.0,1.0,0.0,1.0,0.48218037231442745,0.0,0-1,
+unclean_input,BrandC_usage,float,36.18,2,0.4881889763779528,0.0,0.0,0.0,1.0,0.5018401334688717,0.0,0-1,
+unclean_input,BrandC_affinity,float,37.19,6,3.056,3.0,3.0,1.0,8.0,1.4607996042821783,1.0,0-10,
+unclean_input,BrandC_uniqueness,float,36.18,5,3.0866141732283463,3.0,5.0,1.0,5.0,1.4476232411677266,0.0,1-5,
+unclean_input,BrandC_dynamism,float,36.18,5,3.047244094488189,3.0,2.0,1.0,5.0,1.457646873628512,0.0,1-5,

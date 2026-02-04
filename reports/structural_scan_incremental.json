@@ -1,0 +1,355 @@
+{
+  "shape": {
+    "rows": 40,
+    "columns": 9
+  },
+  "head": [
+    {
+      "respondent_id": 3000,
+      "survey_date": "2024-10-01",
+      "country": "UK",
+      "age": "35-44",
+      "gender": "Female",
+      "satisfaction_score": 9,
+      "nps_score": 3,
+      "purchase_intent": "Very Likely",
+      "channel": "Retail"
+    },
+    {
+      "respondent_id": 3001,
+      "survey_date": "2024-10-02",
+      "country": "USA",
+      "age": "18-24",
+      "gender": "Female",
+      "satisfaction_score": 9,
+      "nps_score": 7,
+      "purchase_intent": "Very Likely",
+      "channel": "Social"
+    },
+    {
+      "respondent_id": 3002,
+      "survey_date": "2024-10-03",
+      "country": "Japan",
+      "age": "45-54",
+      "gender": "Other",
+      "satisfaction_score": 7,
+      "nps_score": 5,
+      "purchase_intent": "Unlikely",
+      "channel": "Retail"
+    },
+    {
+      "respondent_id": 3003,
+      "survey_date": "2024-10-04",
+      "country": "Germany",
+      "age": "35-44",
+      "gender": "Other",
+      "satisfaction_score": 3,
+      "nps_score": 8,
+      "purchase_intent": "Unlikely",
+      "channel": "Social"
+    },
+    {
+      "respondent_id": 3004,
+      "survey_date": "2024-10-05",
+      "country": "USA",
+      "age": "35-44",
+      "gender": "Male",
+      "satisfaction_score": 8,
+      "nps_score": 5,
+      "purchase_intent": "Neutral",
+      "channel": "Social"
+    }
+  ],
+  "tail": [
+    {
+      "respondent_id": 3035,
+      "survey_date": "2024-11-05",
+      "country": "Japan",
+      "age": "45-54",
+      "gender": "Female",
+      "satisfaction_score": 5,
+      "nps_score": 8,
+      "purchase_intent": "Unlikely",
+      "channel": "Mobile"
+    },
+    {
+      "respondent_id": 3036,
+      "survey_date": "2024-11-06",
+      "country": "UK",
+      "age": "45-54",
+      "gender": "Male",
+      "satisfaction_score": 3,
+      "nps_score": 7,
+      "purchase_intent": "Likely",
+      "channel": "Retail"
+    },
+    {
+      "respondent_id": 3037,
+      "survey_date": "2024-11-07",
+      "country": "UK",
+      "age": "18-24",
+      "gender": "Female",
+      "satisfaction_score": 7,
+      "nps_score": 9,
+      "purchase_intent": "Very Unlikely",
+      "channel": "Online"
+    },
+    {
+      "respondent_id": 3038,
+      "survey_date": "2024-11-08",
+      "country": "UK",
+      "age": "45-54",
+      "gender": "Other",
+      "satisfaction_score": 4,
+      "nps_score": 6,
+      "purchase_intent": "Neutral",
+      "channel": "Retail"
+    },
+    {
+      "respondent_id": 3039,
+      "survey_date": "2024-11-09",
+      "country": "Germany",
+      "age": "25-34",
+      "gender": "Other",
+      "satisfaction_score": 8,
+      "nps_score": 4,
+      "purchase_intent": "Very Unlikely",
+      "channel": "Retail"
+    }
+  ],
+  "columns": {
+    "respondent_id": {
+      "dtype": "int64",
+      "inferred_type": "integer",
+      "unique_count": 40,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "3000",
+        "3001",
+        "3002",
+        "3003",
+        "3004"
+      ],
+      "min": 3000.0,
+      "max": 3039.0,
+      "mean": 3019.5,
+      "median": 3019.5,
+      "std": 11.69045194450012,
+      "scale_range": 39.0
+    },
+    "survey_date": {
+      "dtype": "object",
+      "inferred_type": "string",
+      "unique_count": 40,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "2024-10-01",
+        "2024-10-02",
+        "2024-10-03",
+        "2024-10-04",
+        "2024-10-05"
+      ],
+      "levels": {
+        "2024-10-01": 1,
+        "2024-10-02": 1,
+        "2024-10-03": 1,
+        "2024-10-04": 1,
+        "2024-10-05": 1,
+        "2024-10-06": 1,
+        "2024-10-07": 1,
+        "2024-10-08": 1,
+        "2024-10-09": 1,
+        "2024-10-10": 1,
+        "2024-10-11": 1,
+        "2024-10-12": 1,
+        "2024-10-13": 1,
+        "2024-10-14": 1,
+        "2024-10-15": 1,
+        "2024-10-16": 1,
+        "2024-10-17": 1,
+        "2024-10-18": 1,
+        "2024-10-19": 1,
+        "2024-10-20": 1
+      }
+    },
+    "country": {
+      "dtype": "object",
+      "inferred_type": "string",
+      "unique_count": 5,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "UK",
+        "USA",
+        "Japan",
+        "Germany",
+        "USA"
+      ],
+      "levels": {
+        "UK": 11,
+        "Japan": 8,
+        "Germany": 8,
+        "France": 8,
+        "USA": 5
+      }
+    },
+    "age": {
+      "dtype": "object",
+      "inferred_type": "string",
+      "unique_count": 5,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "35-44",
+        "18-24",
+        "45-54",
+        "35-44",
+        "35-44"
+      ],
+      "levels": {
+        "35-44": 11,
+        "18-24": 11,
+        "45-54": 8,
+        "25-34": 6,
+        "55+": 4
+      }
+    },
+    "gender": {
+      "dtype": "object",
+      "inferred_type": "string",
+      "unique_count": 3,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "Female",
+        "Female",
+        "Other",
+        "Other",
+        "Male"
+      ],
+      "levels": {
+        "Female": 16,
+        "Other": 14,
+        "Male": 10
+      }
+    },
+    "satisfaction_score": {
+      "dtype": "int64",
+      "inferred_type": "integer",
+      "unique_count": 9,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "9",
+        "9",
+        "7",
+        "3",
+        "8"
+      ],
+      "min": 1.0,
+      "max": 9.0,
+      "mean": 5.225,
+      "median": 5.0,
+      "std": 2.586825596492092,
+      "scale_range": 8.0
+    },
+    "nps_score": {
+      "dtype": "int64",
+      "inferred_type": "integer",
+      "unique_count": 11,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "3",
+        "7",
+        "5",
+        "8",
+        "5"
+      ],
+      "min": 0.0,
+      "max": 10.0,
+      "mean": 5.55,
+      "median": 6.0,
+      "std": 2.698052479009106,
+      "scale_range": 10.0
+    },
+    "purchase_intent": {
+      "dtype": "object",
+      "inferred_type": "string",
+      "unique_count": 5,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "Very Likely",
+        "Very Likely",
+        "Unlikely",
+        "Unlikely",
+        "Neutral"
+      ],
+      "levels": {
+        "Neutral": 11,
+        "Unlikely": 9,
+        "Very Unlikely": 8,
+        "Very Likely": 6,
+        "Likely": 6
+      }
+    },
+    "channel": {
+      "dtype": "object",
+      "inferred_type": "string",
+      "unique_count": 4,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "Retail",
+        "Social",
+        "Retail",
+        "Social",
+        "Social"
+      ],
+      "levels": {
+        "Retail": 14,
+        "Mobile": 11,
+        "Social": 8,
+        "Online": 7
+      }
+    }
+  },
+  "missing_patterns": {
+    "missing_by_column": {
+      "respondent_id": 0.0,
+      "survey_date": 0.0,
+      "country": 0.0,
+      "age": 0.0,
+      "gender": 0.0,
+      "satisfaction_score": 0.0,
+      "nps_score": 0.0,
+      "purchase_intent": 0.0,
+      "channel": 0.0
+    },
+    "missing_by_row": {
+      "0": 40
+    }
+  },
+  "relationships": {
+    "numeric_correlations": [
+      {
+        "column_a": "respondent_id",
+        "column_b": "nps_score",
+        "correlation": 0.20729741174701227
+      },
+      {
+        "column_a": "respondent_id",
+        "column_b": "satisfaction_score",
+        "correlation": -0.17254459359170846
+      },
+      {
+        "column_a": "satisfaction_score",
+        "column_b": "nps_score",
+        "correlation": -0.047575966427376964
+      }
+    ]
+  }
+}

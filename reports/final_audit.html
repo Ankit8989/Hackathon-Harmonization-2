@@ -1,0 +1,606 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Harmonization Audit Report</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #475569;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .meta-info {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+            background: rgba(255,255,255,0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        
+        .card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .score-card {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .score {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .score.high { color: var(--success); }
+        .score.medium { color: var(--warning); }
+        .score.low { color: var(--error); }
+        
+        .score-label {
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .status-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .status-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+        
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+            border: 1px solid var(--error);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            background: var(--bg-card);
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+        
+        tr:hover td {
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .section {
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--text);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 1.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 2px solid var(--bg);
+        }
+        
+        .timeline-item.success::before { background: var(--success); }
+        .timeline-item.warning::before { background: var(--warning); }
+        .timeline-item.error::before { background: var(--error); }
+        
+        .timeline-time {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .timeline-content {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .issue-list {
+            list-style: none;
+        }
+        
+        .issue-item {
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--border);
+        }
+        
+        .issue-item.blocking { border-left-color: var(--error); }
+        .issue-item.fixable { border-left-color: var(--warning); }
+        .issue-item.ignorable { border-left-color: var(--success); }
+        
+        .issue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .issue-type {
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        .issue-description {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .llm-analysis {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid var(--primary);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .llm-analysis h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .llm-analysis p {
+            color: var(--text);
+            line-height: 1.8;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-card);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-fill.high { background: var(--success); }
+        .progress-fill.medium { background: var(--warning); }
+        .progress-fill.low { background: var(--error); }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            header h1 { font-size: 1.8rem; }
+            .grid { grid-template-columns: 1fr; }
+            .meta-info { flex-direction: column; gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Data Harmonization Audit Report</h1>
+            <p class="subtitle">Agentic AI Data Harmonization System - Final Audit Report</p>
+            <div class="meta-info">
+                <span class="meta-item">📁 C:\Users\ShindeAnk\Downloads\Agentic AI Traning\Hackathon\data\input\uploaded_data.csv</span>
+                <span class="meta-item">🕐 2026-01-13 17:39:08</span>
+                <span class="meta-item">⏱️ 0.00s</span>
+                <span class="meta-item">🔄 Pipeline ID: 99990f38</span>
+            </div>
+        </header>
+        
+        <!-- Summary Cards -->
+        <div class="grid">
+            <div class="card score-card">
+                <div class="score low">
+                    0%
+                </div>
+                <div class="score-label">Overall Quality Score</div>
+            </div>
+            
+            <div class="card score-card">
+                <div class="score low">
+                    0%
+                </div>
+                <div class="score-label">Confidence Score</div>
+            </div>
+            
+            <div class="card score-card">
+                <span class="status-badge status-error">
+                    ❌
+                    ERROR
+                </span>
+                <div class="score-label" style="margin-top: 1rem;">Pipeline Status</div>
+            </div>
+            
+            <div class="card">
+                <h3>📊 Processing Summary</h3>
+                <table>
+                    <tr><td>Input Records</td><td>500</td></tr>
+                    <tr><td>Output Records</td><td>0</td></tr>
+                    <tr><td>LLM Calls</td><td>0</td></tr>
+                    <tr><td>Tokens Used</td><td>0</td></tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Agent Results -->
+        <div class="section">
+            <h2 class="section-title">🤖 Agent Execution Results</h2>
+            
+            
+            <div class="card" style="margin-bottom: 1rem;">
+                <h3>
+                    🔍 Structural Validation Agent
+                    <span class="status-badge status-error">error</span>
+                </h3>
+                
+                <div style="display: flex; gap: 2rem; margin: 1rem 0;">
+                    <div>
+                        <span style="color: var(--text-muted);">Confidence:</span>
+                        <strong>0.0%</strong>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted);">Duration:</span>
+                        <strong>0.06s</strong>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted);">Issues:</span>
+                        <strong>1</strong>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill low" 
+                         style="width: 0.0%"></div>
+                </div>
+                
+                
+            </div>
+            
+            <div class="card" style="margin-bottom: 1rem;">
+                <h3>
+                    📊 Data Quality Agent
+                    <span class="status-badge status-error">error</span>
+                </h3>
+                
+                <div style="display: flex; gap: 2rem; margin: 1rem 0;">
+                    <div>
+                        <span style="color: var(--text-muted);">Confidence:</span>
+                        <strong>92.0%</strong>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted);">Duration:</span>
+                        <strong>0.13s</strong>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted);">Issues:</span>
+                        <strong>20</strong>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill high" 
+                         style="width: 92.0%"></div>
+                </div>
+                
+                
+                <p style="color: var(--text-muted); margin-top: 1rem;">Analyzed 500 rows, 17 columns. Found 20 issues.</p>
+                
+            </div>
+            
+            <div class="card" style="margin-bottom: 1rem;">
+                <h3>
+                    🔄 Harmonization Agent
+                    <span class="status-badge status-error">error</span>
+                </h3>
+                
+                <div style="display: flex; gap: 2rem; margin: 1rem 0;">
+                    <div>
+                        <span style="color: var(--text-muted);">Confidence:</span>
+                        <strong>0.0%</strong>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted);">Duration:</span>
+                        <strong>0.04s</strong>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted);">Issues:</span>
+                        <strong>0</strong>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill low" 
+                         style="width: 0.0%"></div>
+                </div>
+                
+                
+                <p style="color: var(--text-muted); margin-top: 1rem;">Processed 500 records</p>
+                
+            </div>
+            
+        </div>
+        
+        <!-- Data Quality Issues -->
+        
+        <div class="section">
+            <h2 class="section-title">⚠️ Data Quality Issues</h2>
+            <ul class="issue-list">
+                
+                <li class="issue-item blocking">
+                    <div class="issue-header">
+                        <span class="issue-type">missing_values</span>
+                        <span class="status-badge status-error">
+                            blocking
+                        </span>
+                    </div>
+                    <p class="issue-description">Column 'Q5_Future_Purchase' has 100.0% missing values (500 rows)</p>
+                    
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">
+                        Column: <code>Q5_Future_Purchase</code> | Affected: 500 rows (100.0%)
+                    </p>
+                    
+                </li>
+                
+                <li class="issue-item blocking">
+                    <div class="issue-header">
+                        <span class="issue-type">missing_values</span>
+                        <span class="status-badge status-error">
+                            blocking
+                        </span>
+                    </div>
+                    <p class="issue-description">Column 'Q6_Unused_Column' has 100.0% missing values (500 rows)</p>
+                    
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">
+                        Column: <code>Q6_Unused_Column</code> | Affected: 500 rows (100.0%)
+                    </p>
+                    
+                </li>
+                
+            </ul>
+        </div>
+        
+        
+        <!-- LLM Analysis -->
+        
+        <div class="section">
+            <h2 class="section-title">🧠 LLM Analysis & Recommendations</h2>
+            <div class="llm-analysis">
+                <h4>🤖 AI-Generated Insights</h4>
+                <p>Analyzed 500 rows, 17 columns. Found 20 issues.</p>
+            </div>
+            
+            
+            <div class="card" style="margin-top: 1rem;">
+                <h3>💡 Recommendations</h3>
+                <ul style="padding-left: 1.5rem;">
+                    
+                    <li style="margin: 0.5rem 0; color: var(--text-muted);">Fix 2 blocking issues before proceeding</li>
+                    
+                    <li style="margin: 0.5rem 0; color: var(--text-muted);">High missing data (18.8%) - consider imputation</li>
+                    
+                </ul>
+            </div>
+            
+        </div>
+        
+        
+        <!-- Audit Trail -->
+        <div class="section">
+            <h2 class="section-title">📜 Audit Trail</h2>
+            <div class="timeline">
+                
+            </div>
+        </div>
+        
+        <!-- Output Files -->
+        <div class="section">
+            <h2 class="section-title">📄 Generated Files</h2>
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>File</th>
+                            <th>Type</th>
+                            <th>Path</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td>Harmonized Data</td>
+                            <td>CSV</td>
+                            <td><code>None</code></td>
+                        </tr>
+                        
+                        <tr>
+                            <td>Validation Report</td>
+                            <td>JSON</td>
+                            <td><code>C:\Users\ShindeAnk\Downloads\Agentic AI Traning\Hackathon\reports\validation_report.json</code></td>
+                        </tr>
+                        
+                        <tr>
+                            <td>Data Quality Report</td>
+                            <td>JSON</td>
+                            <td><code>C:\Users\ShindeAnk\Downloads\Agentic AI Traning\Hackathon\reports\dq_report.json</code></td>
+                        </tr>
+                        
+                        <tr>
+                            <td>Harmonization Report</td>
+                            <td>JSON</td>
+                            <td><code>C:\Users\ShindeAnk\Downloads\Agentic AI Traning\Hackathon\reports\harmonization_report.json</code></td>
+                        </tr>
+                        
+                        <tr>
+                            <td>Final Audit</td>
+                            <td>HTML</td>
+                            <td><code>C:\Users\ShindeAnk\Downloads\Agentic AI Traning\Hackathon\reports\final_audit.html</code></td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Generated by Agentic AI Data Harmonization System</p>
+            <p>Powered by Azure OpenAI GPT-5.2</p>
+            <p>2026-01-13 17:39:08</p>
+        </footer>
+    </div>
+</body>
+</html>

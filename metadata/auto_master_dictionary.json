@@ -1,0 +1,126 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-02-04T06:28:08.509087",
+  "columns": {
+    "Respondent_Serial": {
+      "data_type": "float",
+      "min": 23822011917320.0,
+      "max": 23822011936426.0,
+      "impute_strategy": "mean"
+    },
+    "QLanguage": {
+      "data_type": "float",
+      "min": 133.0,
+      "max": 133.0,
+      "impute_strategy": "mean"
+    },
+    "Q3_CAT_AU_E_TN_DEV": {
+      "data_type": "float",
+      "min": 1.0,
+      "max": 3.0,
+      "impute_strategy": "mean"
+    },
+    "Qcountry": {
+      "data_type": "float",
+      "min": 238.0,
+      "max": 238.0,
+      "impute_strategy": "mean"
+    },
+    "Main_Boost": {
+      "data_type": "float",
+      "min": 1.0,
+      "max": 1.0,
+      "impute_strategy": "mean"
+    },
+    "AGE": {
+      "data_type": "float",
+      "min": 18.0,
+      "max": 62.0,
+      "impute_strategy": "mean"
+    },
+    "LegalAge": {
+      "data_type": "integer",
+      "min": 18.0,
+      "max": 18.0,
+      "impute_strategy": "mean"
+    },
+    "LegalAge1": {
+      "data_type": "integer",
+      "min": 1.0,
+      "max": 2.0,
+      "impute_strategy": "mean"
+    },
+    "LegalAge2": {
+      "data_type": "integer",
+      "min": 1.0,
+      "max": 2.0,
+      "impute_strategy": "mean"
+    },
+    "SEX": {
+      "data_type": "float",
+      "min": 1.0,
+      "max": 1.0,
+      "impute_strategy": "mean"
+    },
+    "DEMO_REG": {
+      "data_type": "float",
+      "min": 1621.0,
+      "max": 1626.0,
+      "impute_strategy": "mean"
+    },
+    "DEMO_EDUC": {
+      "data_type": "float",
+      "min": 273.0,
+      "max": 410.0,
+      "impute_strategy": "mean"
+    },
+    "DEMO_OCC": {
+      "data_type": "integer",
+      "min": 80.0,
+      "max": 520.0,
+      "impute_strategy": "mean"
+    },
+    "UsertypeN#24": {
+      "data_type": "integer",
+      "min": 0.0,
+      "max": 0.0,
+      "impute_strategy": "mean"
+    },
+    "UsertypeN#25": {
+      "data_type": "integer",
+      "min": 0.0,
+      "max": 0.0,
+      "impute_strategy": "mean"
+    },
+    "UsertypeN#26": {
+      "data_type": "integer",
+      "min": 0.0,
+      "max": 0.0,
+      "impute_strategy": "mean"
+    },
+    "UsertypeN#27": {
+      "data_type": "integer",
+      "min": 0.0,
+      "max": 1.0,
+      "impute_strategy": "mean"
+    },
+    "UsertypeN#28": {
+      "data_type": "integer",
+      "min": 0.0,
+      "max": 1.0,
+      "impute_strategy": "mean"
+    },
+    "AGE_GROUP_2": {
+      "data_type": "integer",
+      "min": 1.0,
+      "max": 6.0,
+      "impute_strategy": "mean"
+    },
+    "MHI_Groups": {
+      "data_type": "integer",
+      "min": 4.0,
+      "max": 4.0,
+      "impute_strategy": "mean"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+Label 1-10 , 0 100, harmonized. 
+
+apply master master madata file. 
+
+Anamlalys median, nmode, Mean , 
+Incmrmetal file , master file. injected. based on uSer validation 
+
+Yo uare have file you have to do head and Tail of it.
+
+levels data that may not LLm Rows, it should give relation between column 
+
+Covert response scale, missing data file 
+
+Manufacture. Hisitirical data one vendor, Mapp Old data to new data. Common between set a and Set B, 
+
+you age grp , One Ageee and Other age grp , it hspuld work n Siloation. 14 markets had send me sales data 
+
+BSI dtaa . Olpmusios data. and PMi new data set. Intial harmonization happen. Hiitircal data different. and Current data. Self updating mapping table .
+
+Dsicrptive data file . Optimiation . should be done . it will not be more than 1000 rows. 
+
+Calibration part of harmonization . lets see one rpeondent 1- 0 and other I got 1-5 . 
+Agntic AI  Function should go to AI 
+
+mapping done if not work use fall back method
+
+

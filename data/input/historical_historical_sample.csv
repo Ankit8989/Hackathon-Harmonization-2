@@ -1,0 +1,13 @@
+date,product,region,channel,units,unit_price,revenue,currency
+2023-01-15,Brand_A,North,Online,120,9.50,1140.00,USD
+2023-02-10,Brand_B,South,Retail,85,11.00,935.00,USD
+2023-03-08,Brand_C,East,Wholesale,60,13.25,795.00,USD
+2023-04-12,Brand_A,West,Online,140,9.75,1365.00,USD
+2023-05-05,Brand_D,North,Retail,95,10.50,997.50,USD
+2023-06-18,Brand_B,East,Online,110,11.20,1232.00,USD
+2023-07-22,Brand_C,South,Wholesale,70,13.00,910.00,USD
+2023-08-14,Brand_D,West,Retail,88,10.75,946.00,USD
+2023-09-09,Brand_A,East,Online,130,9.60,1248.00,USD
+2023-10-03,Brand_B,North,Wholesale,75,11.10,832.50,USD
+2023-11-19,Brand_C,West,Retail,92,13.40,1232.80,USD
+2023-12-07,Brand_D,South,Online,105,10.90,1144.50,USD

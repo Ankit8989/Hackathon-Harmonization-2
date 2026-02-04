@@ -1,0 +1,283 @@
+# Value Mapping Tables for Data Harmonization
+# =============================================
+# These mappings define how source values should be transformed
+# to canonical values during harmonization.
+
+# ==========================================
+# REGION MAPPINGS
+# ==========================================
+region:
+  # Abbreviations
+  "N": "North"
+  "S": "South"
+  "E": "East"
+  "W": "West"
+  "C": "Central"
+  "NE": "Northeast"
+  "NW": "Northwest"
+  "SE": "Southeast"
+  "SW": "Southwest"
+  
+  # Full names (case variations)
+  "NORTH": "North"
+  "SOUTH": "South"
+  "EAST": "East"
+  "WEST": "West"
+  "CENTRAL": "Central"
+  "north": "North"
+  "south": "South"
+  "east": "East"
+  "west": "West"
+  "central": "Central"
+  
+  # Numeric codes
+  "1": "North"
+  "2": "South"
+  "3": "East"
+  "4": "West"
+  "5": "Central"
+
+# ==========================================
+# PURCHASE INTENT MAPPINGS
+# ==========================================
+purchase_intent:
+  # Numeric scale (1-5)
+  "1": "Very Unlikely"
+  "2": "Unlikely"
+  "3": "Neutral"
+  "4": "Likely"
+  "5": "Very Likely"
+  
+  # Abbreviations
+  "VU": "Very Unlikely"
+  "U": "Unlikely"
+  "N": "Neutral"
+  "L": "Likely"
+  "VL": "Very Likely"
+  
+  # Alternative labels
+  "Definitely not": "Very Unlikely"
+  "Probably not": "Unlikely"
+  "Maybe": "Neutral"
+  "Probably": "Likely"
+  "Definitely": "Very Likely"
+  
+  # Case variations
+  "very unlikely": "Very Unlikely"
+  "unlikely": "Unlikely"
+  "neutral": "Neutral"
+  "likely": "Likely"
+  "very likely": "Very Likely"
+
+# ==========================================
+# CHANNEL MAPPINGS
+# ==========================================
+channel:
+  # Abbreviations
+  "ONL": "Online"
+  "RET": "Retail"
+  "MOB": "Mobile"
+  "SOC": "Social"
+  "DIR": "Direct"
+  "PTR": "Partner"
+  
+  # Case variations
+  "online": "Online"
+  "retail": "Retail"
+  "mobile": "Mobile"
+  "social": "Social"
+  "direct": "Direct"
+  "partner": "Partner"
+  
+  # Alternative names
+  "Web": "Online"
+  "E-commerce": "Online"
+  "Store": "Retail"
+  "In-store": "Retail"
+  "App": "Mobile"
+  "Mobile App": "Mobile"
+  "Social Media": "Social"
+  "Facebook": "Social"
+  "Instagram": "Social"
+
+# ==========================================
+# GENDER MAPPINGS
+# ==========================================
+demographic_gender:
+  # Abbreviations
+  "M": "Male"
+  "F": "Female"
+  "O": "Other"
+  "X": "Prefer not to say"
+  
+  # Numeric codes
+  "1": "Male"
+  "2": "Female"
+  "3": "Other"
+  "4": "Prefer not to say"
+  
+  # Case variations
+  "male": "Male"
+  "female": "Female"
+  "other": "Other"
+  "MALE": "Male"
+  "FEMALE": "Female"
+  
+  # Alternative labels
+  "Man": "Male"
+  "Woman": "Female"
+  "Non-binary": "Other"
+  "Rather not say": "Prefer not to say"
+  "Decline to answer": "Prefer not to say"
+
+# ==========================================
+# AGE GROUP MAPPINGS
+# ==========================================
+demographic_age:
+  # Numeric ranges
+  "1": "18-24"
+  "2": "25-34"
+  "3": "35-44"
+  "4": "45-54"
+  "5": "55-64"
+  "6": "65+"
+  
+  # Alternative formats
+  "18 to 24": "18-24"
+  "25 to 34": "25-34"
+  "35 to 44": "35-44"
+  "45 to 54": "45-54"
+  "55 to 64": "55-64"
+  "65 and over": "65+"
+  "65+": "65+"
+  "55+": "55+"
+  
+  # Descriptive labels
+  "Young Adult": "18-24"
+  "Millennial": "25-34"
+  "Gen X": "35-44"
+  "Middle Age": "45-54"
+  "Senior": "55+"
+
+# ==========================================
+# COUNTRY MAPPINGS
+# ==========================================
+country:
+  # ISO codes to names
+  "US": "USA"
+  "USA": "USA"
+  "United States": "USA"
+  "United States of America": "USA"
+  
+  "UK": "UK"
+  "GB": "UK"
+  "United Kingdom": "UK"
+  "Great Britain": "UK"
+  "England": "UK"
+  
+  "DE": "Germany"
+  "GER": "Germany"
+  "Deutschland": "Germany"
+  
+  "FR": "France"
+  "FRA": "France"
+  
+  "JP": "Japan"
+  "JPN": "Japan"
+  
+  "AU": "Australia"
+  "AUS": "Australia"
+  
+  "CA": "Canada"
+  "CAN": "Canada"
+  
+  "NL": "Netherlands"
+  "BE": "Belgium"
+  "LU": "Luxembourg"
+
+# ==========================================
+# BRAND MAPPINGS (Example)
+# ==========================================
+brand:
+  # Abbreviations to full names
+  "BR_A": "Brand_A"
+  "BR_B": "Brand_B"
+  "BR_C": "Brand_C"
+  "BR_D": "Brand_D"
+  
+  # Case normalization
+  "brand_a": "Brand_A"
+  "brand_b": "Brand_B"
+  "brand_c": "Brand_C"
+  "brand_d": "Brand_D"
+  "BRAND_A": "Brand_A"
+  "BRAND_B": "Brand_B"
+  "BRAND_C": "Brand_C"
+  "BRAND_D": "Brand_D"
+
+# ==========================================
+# PRODUCT CATEGORY MAPPINGS
+# ==========================================
+product_category:
+  # Abbreviations
+  "ELEC": "Electronics"
+  "APP": "Apparel"
+  "FOOD": "Food"
+  "BEV": "Beverages"
+  
+  # Case variations
+  "electronics": "Electronics"
+  "apparel": "Apparel"
+  "food": "Food"
+  "beverages": "Beverages"
+  "ELECTRONICS": "Electronics"
+  "APPAREL": "Apparel"
+  "FOOD": "Food"
+  "BEVERAGES": "Beverages"
+  
+  # Alternative names
+  "Clothing": "Apparel"
+  "Drinks": "Beverages"
+  "Tech": "Electronics"
+  "Gadgets": "Electronics"
+
+# ==========================================
+# SCALE NORMALIZATION RULES
+# ==========================================
+scale_normalizations:
+  satisfaction_score:
+    # Define common input scales and output range
+    input_scales:
+      - name: "1-5 scale"
+        min: 1
+        max: 5
+      - name: "1-7 scale"
+        min: 1
+        max: 7
+      - name: "1-10 scale"
+        min: 1
+        max: 10
+      - name: "0-10 scale"
+        min: 0
+        max: 10
+    output_scale:
+      min: 0
+      max: 100
+    formula: "((value - input_min) / (input_max - input_min)) * (output_max - output_min) + output_min"
+
+# ==========================================
+# WAVE/PERIOD NORMALIZATION
+# ==========================================
+wave_formats:
+  # Standard format: W{number}_{year} or Q{number}_{year}
+  patterns:
+    - input: "Wave 1 2024"
+      output: "W1_2024"
+    - input: "Q1 2024"
+      output: "Q1_2024"
+    - input: "2024-W1"
+      output: "W1_2024"
+    - input: "2024Q1"
+      output: "Q1_2024"
+
+
