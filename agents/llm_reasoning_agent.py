@@ -222,9 +222,56 @@ RESPOND IN STRICT JSON FORMAT:
     "transformation_logic": "description of transformation",
     "python_expression": "pandas expression to apply",
     "handles_nulls": true,
-    "potential_data_loss": false,
-    "confidence": 0.90,
-    "warnings": ["any warnings"]
+        "potential_data_loss": false,
+        "confidence": 0.90,
+        "warnings": ["any warnings"]
+    }}""",
+
+        "agentic_code_improvement": """You are an autonomous data engineer inside an agentic data-cleaning loop.
+
+You NEVER see raw data. You only see:
+- Per-column statistics (null %, min, max, mean, top values)
+- Overall data-quality summary
+- Optional error message from the last code you generated
+
+Your job is to:
+- Generate SAFE Python code that operates on a pandas DataFrame named df
+- Actually CHANGE df to improve missing-value handling and obvious data-quality problems
+- Avoid file I/O, network calls, or imports (pd and np are already available)
+
+YOU MUST:
+- Always modify df in a meaningful way (no-op code is not allowed)
+- Prioritize the top 3–5 columns with the highest null percentage
+- For numeric columns with missing values, use mean/median imputation
+- For categorical/string columns with missing values, use a constant like "Unknown"
+- Keep transformations simple and explainable
+
+Current iteration: {iteration}
+
+DATAFRAME STATS (before this iteration):
+{stats_before}
+
+DATA QUALITY SUMMARY (before this iteration):
+{dq_before}
+
+LAST ERROR (if any, may be empty):
+{last_error}
+
+RULES:
+- Only modify the existing DataFrame df
+- Do NOT read or write any files
+- Do NOT import any new libraries
+- Focus on:
+  - filling or safely handling missing values
+  - fixing obviously invalid numeric ranges (e.g. negative ages)
+  - lightweight transformations that are reversible
+
+RESPOND IN STRICT JSON (no comments, no extra keys) with this shape:
+{{
+  "code": "Python code that assumes df, pd, np exist. Either modify df in-place or assign df = <new_df>.",
+  "description": "Short summary of what the code does.",
+  "expected_effect": "What quality issues this should improve.",
+  "confidence": 0.9
 }}"""
     }
     
@@ -518,6 +565,51 @@ RESPOND IN STRICT JSON FORMAT:
             confidence_score=result.get("confidence", 0)
         )
         
+        return result, tokens
+
+    def generate_agentic_code(
+        self,
+        stats_before: Dict[str, Any],
+        dq_before: Dict[str, Any],
+        last_error: Optional[str] = None,
+        iteration: int = 1
+    ) -> Tuple[Dict[str, Any], float]:
+        """
+        Ask the LLM to generate concrete Python code that operates on df
+        to improve data quality, based ONLY on summary statistics and
+        a previous error message (if any).
+        """
+        self.logger.info(f"Generating agentic code for iteration {iteration}")
+
+        prompt = self.PROMPT_TEMPLATES["agentic_code_improvement"].format(
+            iteration=iteration,
+            stats_before=json.dumps(stats_before, indent=2),
+            dq_before=json.dumps(dq_before, indent=2),
+            last_error=json.dumps(last_error or "", ensure_ascii=False),
+        )
+
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a senior data engineer. "
+                    "Always respond with STRICT, VALID JSON exactly matching the requested schema. "
+                    "Never include comments or markdown code fences."
+                ),
+            },
+            {"role": "user", "content": prompt},
+        ]
+
+        response, tokens = self.call_llm(messages, purpose="agentic_code_generation")
+        result = self._parse_json_response(response)
+
+        self.add_audit_entry(
+            action=f"Generated agentic code (iteration {iteration})",
+            status=ProcessingStatus.COMPLETED,
+            confidence_score=result.get("confidence", 0),
+            details=result.get("description", "")[:300],
+        )
+
         return result, tokens
     
     def _parse_json_response(self, response: str) -> Dict[str, Any]:

@@ -322,7 +322,7 @@ RESPOND IN STRICT JSON FORMAT:
                 result=pipeline_result.model_dump(),
                 errors=[str(e)]
             )
-    
+
     def _log_step(self, step_name: str):
         """Log a pipeline step"""
         self.logger.separator(step_name)

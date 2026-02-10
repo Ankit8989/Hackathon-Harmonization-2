@@ -19,6 +19,7 @@ from models.schemas import (
     ProcessingStatus
 )
 from utils.logger import get_logger
+from utils.token_tracker import record_token_usage
 
 
 class BaseAgent(ABC):
@@ -117,6 +118,9 @@ class BaseAgent(ABC):
             
             self.llm_calls_made += 1
             self.tokens_used += tokens
+
+            # Record usage globally so the app can show session stats
+            record_token_usage(self.name, purpose, tokens)
             
             self.logger.debug(f"LLM response received: {tokens} tokens")
             

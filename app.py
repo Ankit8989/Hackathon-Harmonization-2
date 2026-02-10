@@ -58,6 +58,7 @@ load_dotenv()
 from config import INPUT_DIR, OUTPUT_DIR, REPORTS_DIR, METADATA_DIR, AZURE_CONFIG
 from utils.multi_source_harmonizer import MultiSourceHarmonizer
 from utils.knowledge_bag import load_knowledge_bag, save_knowledge_bag, update_imputation_overrides
+from utils.agentic_loop import run_agentic_loop
 from agents.structural_validation_agent import StructuralValidationAgent
 from utils.file_handlers import MetadataHandler
 from utils.supporting_files_generator import generate_supporting_files
@@ -1686,6 +1687,43 @@ with st.sidebar:
     
     st.divider()
     
+    # Token usage (live)
+    from utils.token_tracker import get_usage_log
+    usage_log = get_usage_log()
+    total_tokens_used = sum(entry["tokens"] for entry in usage_log) if usage_log else 0
+
+    if "run_tokens_start" not in st.session_state:
+        st.session_state.run_tokens_start = 0
+
+    current_run_tokens = max(total_tokens_used - st.session_state.run_tokens_start, 0)
+
+    st.subheader("🔢 Token Usage")
+    st.metric("Current run tokens", f"{current_run_tokens:,}")
+    st.metric("Total session tokens", f"{total_tokens_used:,}")
+
+    if usage_log:
+        import pandas as pd
+        from io import BytesIO
+
+        df_tokens = pd.DataFrame(usage_log)
+        df_tokens["timestamp"] = pd.to_datetime(df_tokens["timestamp"]).dt.strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+
+        buf = BytesIO()
+        with pd.ExcelWriter(buf, engine="openpyxl") as writer:
+            df_tokens.to_excel(writer, index=False, sheet_name="token_usage")
+        buf.seek(0)
+
+        st.download_button(
+            "⬇️ Download token usage (Excel)",
+            buf.getvalue(),
+            file_name="token_usage.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+    
+    st.divider()
+    
     # Quick Actions
     st.subheader("⚡ Quick Actions")
     
@@ -1696,6 +1734,10 @@ with st.sidebar:
     if st.button("🗑️ Clear Results"):
         st.session_state.pipeline_result = None
         st.session_state.uploaded_df = None
+        # Reset run baseline so current-run tokens start from 0 next time
+        from utils.token_tracker import get_usage_log as _gul
+        existing = _gul()
+        st.session_state.run_tokens_start = sum(e["tokens"] for e in existing) if existing else 0
         st.rerun()
 
 
@@ -1715,11 +1757,9 @@ with header_right:
 st.divider()
 
 # Main tabs (removed Audit Trail - not needed)
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2 = st.tabs([
     "📤 Upload & Process",
     "📊 Results Dashboard",
-    "📋 Reports",
-    "🔍 Harmonization Results"
 ])
 
 
@@ -2263,111 +2303,136 @@ with tab1:
                         "Drop column"
                     ]
 
-                ai_strategy = info.get("ai_strategy")
-                dict_strategy = info.get("dict_strategy")
-                default_strategy = dict_strategy or strategy_map.get(ai_strategy, 'Keep missing')
-                current = st.session_state.column_missing_strategies.get(col_name, default_strategy)
-                if current not in options:
-                    current = options[0]
+        st.divider()
 
-                sources = []
-                if info.get("ai_source"):
-                    sources.append("AI")
-                if info.get("dict_source"):
-                    sources.append("Dictionary")
-                source_label = " + ".join(sources) if sources else "Recommendations"
+        # ===========================================
+        # STEP 3: AGENTIC DATA CLEANING (LLM DOES THE WORK)
+        # ===========================================
+        st.subheader("🧠 Agentic Data Cleaning")
+        st.caption(
+            "Here the LLM generates Python code, we execute it locally on your data, "
+            "then re-check data quality in small iterative loops."
+        )
 
-                reason_parts = []
-                if info.get("ai_reason"):
-                    reason_parts.append(f"AI: {info.get('ai_reason')}")
-                if info.get("dict_reason"):
-                    reason_parts.append(f"Dictionary: {info.get('dict_reason')}")
-                reason_text = " | ".join(reason_parts)
+        if "agentic_history" not in st.session_state:
+            st.session_state.agentic_history = []
+        if "agentic_clean_df" not in st.session_state:
+            st.session_state.agentic_clean_df = None
 
-                rec_col1, rec_col2, rec_col3 = st.columns([2, 2, 3])
-                with rec_col1:
-                    type_icon = "🔢" if is_numeric else "📝"
-                    missing = df[col_name].isna().sum() if col_name in df.columns else 0
-                    st.markdown(f"{type_icon} **{col_name[:25]}**{'...' if len(col_name) > 25 else ''}")
-                    st.caption(f"{missing:,} missing • {source_label}")
+        col_agentic_btn, col_agentic_status = st.columns([1, 2])
+        with col_agentic_btn:
+            run_agentic = st.button("🚀 Let AI Clean the Data", key="run_agentic_loop")
+        with col_agentic_status:
+            if st.session_state.agentic_history:
+                last_iter = st.session_state.agentic_history[-1]
+                score = last_iter.get("quality_after", {}).get("overall_quality_score", 0)
+                st.success(f"Agentic loop completed. Last quality score: {score:.1f}")
 
-                with rec_col2:
-                    selected = st.selectbox(
-                        f"Action for {col_name}",
-                        options=options,
-                        index=options.index(current) if current in options else 0,
-                        key=f"combined_rec_{col_name}",
-                        label_visibility="collapsed"
+        if run_agentic:
+            if check_api_key():
+                validation_bundle = st.session_state.get("schema_validation_result")
+                master_schema = None
+                if validation_bundle:
+                    master_schema = validation_bundle.get("master_schema")
+
+                base_df = (
+                    st.session_state.mapped_df
+                    if st.session_state.get("mapped_df") is not None
+                    else df
+                )
+
+                with st.spinner("🧠 Agentic loop running (LLM → code → execute → re-validate)..."):
+                    clean_df, history, final_dq = run_agentic_loop(
+                        df=base_df,
+                        master_schema=master_schema,
+                        business_rules=None,
+                        max_iterations=3,
                     )
-                    st.session_state.column_missing_strategies[col_name] = selected
+                    st.session_state.agentic_clean_df = clean_df
+                    st.session_state.agentic_history = history
+                st.success("Agentic data cleaning complete.")
+            else:
+                st.error("⚠️ Please configure Azure OpenAI API key in sidebar first")
 
-                with rec_col3:
-                    if reason_text:
-                        st.caption(f"💡 *{reason_text}*")
+        if st.session_state.agentic_history:
+            with st.expander(
+                "📜 Agentic Loop Log (LLM-generated code and quality over time)",
+                expanded=False,
+            ):
+                for entry in st.session_state.agentic_history:
+                    st.markdown(f"#### Iteration {entry.get('iteration')}")
+                    cols_iter = st.columns([2, 1])
+                    with cols_iter[0]:
+                        st.markdown("**Generated Code**")
+                        st.code(entry.get("code", "") or "# No code returned", language="python")
+                    with cols_iter[1]:
+                        before = entry.get("quality_before", {})
+                        after = entry.get("quality_after", {})
+                        st.markdown("**Quality Before → After**")
+                        st.write(
+                            {
+                                "score_before": before.get("overall_quality_score"),
+                                "score_after": after.get("overall_quality_score"),
+                                "improvement": entry.get("improvement"),
+                            }
+                        )
+                        if entry.get("exec_error"):
+                            st.markdown("**Execution Error**")
+                            st.error(entry["exec_error"])
+                        else:
+                            st.markdown("**Execution Status**")
+                            st.success("Code executed successfully.")
+                    st.markdown("---")
 
-            if st.session_state.dictionary_warnings:
-                st.warning("Standards warnings detected:")
-                for warn in st.session_state.dictionary_warnings[:8]:
-                    st.caption(f"• {warn}")
-            
+        if st.session_state.agentic_clean_df is not None:
+            st.markdown("### ✅ Cleaned Data Preview (Agentic Loop Output)")
+            st.caption(
+                "This is the DataFrame after the agentic loop. "
+                "You can still run harmonization and reporting on top of this."
+            )
+
+            # Show key stats before vs after cleaning
+            base_df = (
+                st.session_state.mapped_df
+                if st.session_state.get("mapped_df") is not None
+                else df
+            )
+            clean_df = st.session_state.agentic_clean_df
+
+            base_missing = int(base_df.isna().sum().sum())
+            clean_missing = int(clean_df.isna().sum().sum())
+            base_rows, base_cols = base_df.shape
+            clean_rows, clean_cols = clean_df.shape
+
+            stat_col1, stat_col2, stat_col3 = st.columns(3)
+            with stat_col1:
+                st.metric(
+                    "Rows (Before → After)",
+                    f"{base_rows:,} → {clean_rows:,}",
+                )
+            with stat_col2:
+                st.metric(
+                    "Columns (Before → After)",
+                    f"{base_cols:,} → {clean_cols:,}",
+                )
+            with stat_col3:
+                st.metric(
+                    "Total Missing Values",
+                    f"{clean_missing:,}",
+                    delta=f"{clean_missing - base_missing:+,}",
+                )
+
+            st.dataframe(clean_df.head(100), height=300)
         # ===========================================
         # HARMONIZATION OPTIONS (Manual Control)
         # ===========================================
         st.markdown("---")
-        st.subheader("⚙️ Harmonization Options")
-        st.caption("Transformations are hard-coded locally. AI suggestions above are for missing values only.")
-        
-        opt_col1, opt_col2, opt_col3 = st.columns(3)
-        
-        with opt_col1:
-            st.markdown("**📝 Data Cleaning:**")
-            standardize_cols = st.checkbox("Standardize column names", value=True, 
-                help="Convert to lowercase, replace spaces with underscores")
-            remove_special = st.checkbox("Remove special characters", value=True,
-                help="Remove characters like @, #, $, etc.")
-        
-        with opt_col2:
-            st.markdown("**🗺️ Standardization:**")
-            region_mapping = st.checkbox("Standardize region codes", value=True,
-                help="Map region variations to standard codes")
-            country_mapping = st.checkbox("Standardize country codes", value=True,
-                help="Convert country names to ISO codes")
-            date_standardize = st.checkbox("Standardize date formats", value=True,
-                help="Convert all dates to YYYY-MM-DD format")
-        
-        with opt_col3:
-            st.markdown("**🔧 Missing Values:**")
-            has_recommendations = bool(st.session_state.get("column_missing_strategies"))
-            if has_recommendations:
-                st.caption("Using per-column recommendations you selected above.")
-                default_numeric = "Keep missing"
-                default_text = "Keep missing"
-                missing_strategy = "Per-column recommendations"
-            else:
-                st.caption("No recommendations yet — using Smart Fill defaults.")
-                default_numeric = "Replace with MEAN"
-                default_text = "Replace with 'Unknown'"
-                missing_strategy = "Smart Fill defaults"
-        
-        # Store all options
-        st.session_state.harmonization_options = {
-            'standardize_cols': standardize_cols,
-            'remove_special': remove_special,
-            'default_numeric': default_numeric,
-            'default_text': default_text,
-            'column_strategies': st.session_state.get('column_missing_strategies', {}),
-            'remove_missing_rows': False,
-            'missing_strategy': missing_strategy,
-            'scale_conversion': 'No conversion',
-            'region_mapping': region_mapping,
-            'country_mapping': country_mapping,
-            'date_standardize': date_standardize,
-            'wave_extraction': False,
-            'category_mapping': True,
-            'hierarchy_mapping': False
-        }
-        
-        st.divider()
+        st.subheader("⚙️ Harmonization")
+        st.caption(
+            "The final harmonization step runs automatically using the agentic-cleaned data "
+            "and built-in transformation rules. No manual tuning is required; human review is "
+            "only needed if an error is raised."
+        )
     
     # Process button
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -2385,7 +2450,17 @@ with tab1:
                 
                 with st.spinner("Running local harmonization (no API)..."):
                     try:
-                        df_to_use = st.session_state.get("mapped_df") or st.session_state.uploaded_df
+                        base_df = (
+                            st.session_state.get("mapped_df")
+                            if st.session_state.get("mapped_df") is not None
+                            else st.session_state.uploaded_df
+                        )
+                        # Prefer agentic-cleaned data if available
+                        df_to_use = (
+                            st.session_state.get("agentic_clean_df")
+                            if st.session_state.get("agentic_clean_df") is not None
+                            else base_df
+                        )
                         result = run_pipeline(
                             df_to_use,
                             update_progress
@@ -2917,865 +2992,6 @@ with tab2:
             "<div class=\"kantar-callout\">🔄 Run the pipeline to see results</div>",
             unsafe_allow_html=True
         )
-
-
-# =============================================================================
-# TAB 3: REPORTS (Displayed in UI + PDF Download)
-# =============================================================================
-
-def generate_pdf_report(result_data):
-    """Generate a PDF-ready HTML report"""
-    sv_data = to_dict(result_data.get('structural_validation', {}))
-    dq_data = to_dict(result_data.get('data_quality', {}))
-    harm_data = to_dict(result_data.get('harmonization', {}))
-    
-    # Get data quality details
-    dq_result = to_dict(dq_data.get('result', {}))
-    column_stats = dq_result.get('column_statistics', []) or []
-    
-    # Build missing values table
-    missing_rows = ""
-    for stat in column_stats[:30]:
-        stat = to_dict(stat)
-        null_count = stat.get('null_count', 0) or 0
-        if null_count > 0:
-            missing_rows += f"<tr><td>{stat.get('column_name', 'N/A')}</td><td>{null_count}</td><td>{stat.get('null_percentage', 0):.1f}%</td></tr>"
-    
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Data Harmonization Report</title>
-        <style>
-            body {{ font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; background: #f5f5f5; }}
-            .container {{ max-width: 900px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
-            h1 {{ color: #1e3a5f; border-bottom: 3px solid #667eea; padding-bottom: 10px; }}
-            h2 {{ color: #334155; margin-top: 30px; }}
-            .metric-box {{ display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px 30px; border-radius: 10px; margin: 10px; text-align: center; }}
-            .metric-value {{ font-size: 28px; font-weight: bold; }}
-            .metric-label {{ font-size: 12px; opacity: 0.9; }}
-            table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
-            th, td {{ border: 1px solid #ddd; padding: 12px; text-align: left; }}
-            th {{ background: #667eea; color: white; }}
-            tr:nth-child(even) {{ background: #f9f9f9; }}
-            .success {{ color: #10b981; font-weight: bold; }}
-            .warning {{ color: #f59e0b; font-weight: bold; }}
-            .error {{ color: #ef4444; font-weight: bold; }}
-            .footer {{ margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px; }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>🤖 AI Data Harmonization Report</h1>
-            <p><strong>Generated:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
-            <p><strong>Pipeline ID:</strong> {result_data.get('pipeline_id', 'N/A')}</p>
-            
-            <h2>📊 Summary Metrics</h2>
-            <div style="text-align: center;">
-                <div class="metric-box">
-                    <div class="metric-value">{result_data.get('final_quality_score', 0):.1f}%</div>
-                    <div class="metric-label">Quality Score</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-value">{result_data.get('final_confidence_score', 0)*100:.1f}%</div>
-                    <div class="metric-label">Confidence</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-value">{result_data.get('total_tokens_used', 0):,}</div>
-                    <div class="metric-label">Tokens Used</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-value">{result_data.get('total_processing_time_seconds', 0):.1f}s</div>
-                    <div class="metric-label">Duration</div>
-                </div>
-            </div>
-            
-            <h2>🔍 Agent Results</h2>
-            <table>
-                <tr>
-                    <th>Agent</th>
-                    <th>Status</th>
-                    <th>Confidence</th>
-                    <th>Tokens</th>
-                </tr>
-                <tr>
-                    <td>Structural Validation</td>
-                    <td class="{'success' if sv_data.get('success') else 'warning'}">{'✓ Success' if sv_data.get('success') else '⚠ Issues'}</td>
-                    <td>{sv_data.get('confidence_score', 0)*100:.1f}%</td>
-                    <td>{sv_data.get('tokens_used', 0):,}</td>
-                </tr>
-                <tr>
-                    <td>Data Quality</td>
-                    <td class="{'success' if dq_data.get('success') else 'warning'}">{'✓ Success' if dq_data.get('success') else '⚠ Issues'}</td>
-                    <td>{dq_data.get('confidence_score', 0)*100:.1f}%</td>
-                    <td>{dq_data.get('tokens_used', 0):,}</td>
-                </tr>
-                <tr>
-                    <td>Harmonization</td>
-                    <td class="{'success' if harm_data.get('success') else 'warning'}">{'✓ Success' if harm_data.get('success') else '⚠ Issues'}</td>
-                    <td>{harm_data.get('confidence_score', 0)*100:.1f}%</td>
-                    <td>{harm_data.get('tokens_used', 0):,}</td>
-                </tr>
-            </table>
-            
-            <h2>📉 Missing Values Summary</h2>
-            <table>
-                <tr>
-                    <th>Column Name</th>
-                    <th>Missing Count</th>
-                    <th>Missing %</th>
-                </tr>
-                {missing_rows if missing_rows else '<tr><td colspan="3">No missing values found</td></tr>'}
-            </table>
-            
-            <div class="footer">
-                <p>🤖 Generated by Agentic AI Data Harmonization System</p>
-                <p>Powered by Azure OpenAI GPT-5.2</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    return html_content
-
-with tab3:
-    if st.session_state.pipeline_result and st.session_state.pipeline_result.result:
-        result_data = to_dict(st.session_state.pipeline_result.result)
-        
-        st.subheader("📋 Data Harmonization Report")
-        
-        # Download buttons at top
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            # Generate PDF-ready HTML
-            pdf_html = generate_pdf_report(result_data)
-            st.download_button(
-                "📥 Download Report (HTML/PDF)",
-                pdf_html,
-                file_name="harmonization_report.html",
-                mime="text/html",
-                help="Open in browser and Print → Save as PDF"
-            )
-        
-        with col2:
-            # Download harmonized data
-            output_file = result_data.get('output_file')
-            if output_file and Path(output_file).exists():
-                with open(output_file, 'rb') as f:
-                    st.download_button(
-                        "📥 Download Harmonized Data",
-                        f.read(),
-                        file_name="harmonized_data.csv",
-                        mime="text/csv"
-                    )
-        
-        st.divider()
-        
-        # ========== REPORT DISPLAYED IN UI ==========
-        
-        # Section 1: Summary
-        st.markdown("### 📊 Executive Summary")
-        
-        sum_col1, sum_col2, sum_col3, sum_col4 = st.columns(4)
-        with sum_col1:
-            st.metric("Quality Score", f"{result_data.get('final_quality_score', 0):.1f}%")
-        with sum_col2:
-            st.metric("Confidence", f"{result_data.get('final_confidence_score', 0)*100:.1f}%")
-        with sum_col3:
-            st.metric("Processing Time", f"{result_data.get('total_processing_time_seconds', 0):.1f}s")
-        with sum_col4:
-            st.metric("Tokens Used", f"{result_data.get('total_tokens_used', 0):,}")
-        
-        st.divider()
-        
-        # Section 2: Agent Performance
-        st.markdown("### 🤖 Agent Performance")
-        
-        sv_data = to_dict(result_data.get('structural_validation', {}))
-        dq_data = to_dict(result_data.get('data_quality', {}))
-        harm_data = to_dict(result_data.get('harmonization', {}))
-        
-        agent_df = pd.DataFrame([
-            {
-                "Agent": "🔍 Structural Validation",
-                "Status": "✅ Success" if sv_data.get('success') else "⚠️ Issues",
-                "Confidence": f"{sv_data.get('confidence_score', 0)*100:.1f}%",
-                "Duration": f"{sv_data.get('execution_time_seconds', 0):.1f}s",
-                "Tokens": sv_data.get('tokens_used', 0)
-            },
-            {
-                "Agent": "📊 Data Quality",
-                "Status": "✅ Success" if dq_data.get('success') else "⚠️ Issues",
-                "Confidence": f"{dq_data.get('confidence_score', 0)*100:.1f}%",
-                "Duration": f"{dq_data.get('execution_time_seconds', 0):.1f}s",
-                "Tokens": dq_data.get('tokens_used', 0)
-            },
-            {
-                "Agent": "🔄 Harmonization",
-                "Status": "✅ Success" if harm_data.get('success') else "⚠️ Issues",
-                "Confidence": f"{harm_data.get('confidence_score', 0)*100:.1f}%",
-                "Duration": f"{harm_data.get('execution_time_seconds', 0):.1f}s",
-                "Tokens": harm_data.get('tokens_used', 0)
-            }
-        ])
-        st.dataframe(agent_df, hide_index=True)
-        
-        st.divider()
-        
-        # Section 3: Data Quality Details
-        st.markdown("### 📉 Data Quality Analysis")
-        
-        dq_result = to_dict(dq_data.get('result', {}))
-        column_stats = dq_result.get('column_statistics', []) or []
-        
-        if column_stats:
-            # Missing values table
-            missing_data = []
-            for stat in column_stats:
-                stat = to_dict(stat)
-                null_count = stat.get('null_count', 0) or 0
-                if null_count > 0:
-                    missing_data.append({
-                        'Column': stat.get('column_name', 'Unknown'),
-                        'Missing Count': null_count,
-                        'Missing %': f"{stat.get('null_percentage', 0):.1f}%",
-                        'Data Type': stat.get('data_type', 'unknown')
-                    })
-            
-            if missing_data:
-                missing_data.sort(key=lambda x: x['Missing Count'], reverse=True)
-                st.markdown(f"**Columns with Missing Values:** {len(missing_data)}")
-                st.dataframe(pd.DataFrame(missing_data), hide_index=True, height=300)
-            else:
-                st.success("✅ No missing values found in any column!")
-        
-        st.divider()
-        
-        # Section 4: Issues Found
-        st.markdown("### ⚠️ Issues & Recommendations")
-        
-        blocking = dq_result.get('blocking_issues', []) or []
-        fixable = dq_result.get('fixable_issues', []) or []
-        
-        if blocking:
-            st.error(f"**🚫 Blocking Issues ({len(blocking)})**")
-            for issue in blocking[:10]:
-                issue = to_dict(issue)
-                st.markdown(f"- {issue.get('description', 'Unknown issue')}")
-        
-        if fixable:
-            st.warning(f"**🔧 Fixable Issues ({len(fixable)})**")
-            for issue in fixable[:10]:
-                issue = to_dict(issue)
-                st.markdown(f"- {issue.get('description', 'Unknown issue')}")
-        
-        if not blocking and not fixable:
-            st.success("✅ No significant issues found!")
-        
-        # Recommendations
-        recommendations = dq_result.get('recommendations', []) or []
-        if recommendations:
-            st.markdown("**💡 Recommendations:**")
-            for rec in recommendations[:5]:
-                st.info(f"• {rec}")
-        
-        st.divider()
-        
-        # Section 5: Visual Report Preview (Printable)
-        st.markdown("### 📄 Printable Report Preview")
-        st.caption("This is how your downloaded report will look. Click 'Download Report' above to save.")
-        
-        with st.expander("👁️ View Full Report Preview", expanded=False):
-            # Show the HTML report in an iframe
-            pdf_html = generate_pdf_report(result_data)
-            st.components.v1.html(pdf_html, height=800, scrolling=True)
-        
-    else:
-        st.markdown(
-            "<div class=\"kantar-callout\">🔄 Run the pipeline to generate reports</div>",
-            unsafe_allow_html=True
-        )
-
-
-# =============================================================================
-# TAB 4: HARMONIZATION RESULTS (FROM INPUT FILES FOLDER)
-# =============================================================================
-
-with tab4:
-    st.subheader("🔍 Harmonization Results Dashboard")
-    st.caption("View pre-processed harmonization results from the Input files folder")
-    
-    # Load button
-    col_load1, col_load2 = st.columns([1, 3])
-    with col_load1:
-        load_clicked = st.button("📂 Load Input Files", key="load_input_files")
-    with col_load2:
-        if st.session_state.get('input_files_loaded'):
-            st.success("✅ Input files loaded successfully!")
-    
-    if load_clicked or st.session_state.get('input_files_loaded'):
-        # Load the input files
-        if load_clicked or 'input_files_data' not in st.session_state:
-            input_files = load_input_files()
-            st.session_state.input_files_data = input_files
-            st.session_state.input_files_loaded = input_files['loaded']
-        else:
-            input_files = st.session_state.input_files_data
-        
-        # Show errors if any
-        if input_files['errors']:
-            with st.expander("⚠️ Loading Warnings", expanded=False):
-                for error in input_files['errors']:
-                    st.warning(error)
-        
-        if input_files['loaded']:
-            # Get summary statistics
-            summary = get_harmonization_summary(input_files)
-            
-            st.divider()
-            
-            # ===========================================
-            # SUMMARY METRICS
-            # ===========================================
-            st.markdown("### 📊 Summary Metrics")
-            
-            met_col1, met_col2, met_col3, met_col4 = st.columns(4)
-            with met_col1:
-                st.metric("Total Rows", f"{summary['total_rows']:,}")
-            with met_col2:
-                st.metric("Total Columns", summary['total_columns'])
-            with met_col3:
-                st.metric("Anomalies Found", summary['total_anomalies'])
-            with met_col4:
-                st.metric("Corrections Made", summary['total_corrections'])
-            
-            met_col5, met_col6, met_col7, met_col8 = st.columns(4)
-            with met_col5:
-                st.metric("Columns with Issues", summary['columns_with_issues'])
-            with met_col6:
-                st.metric("Valid Nulls", summary['valid_nulls_count'])
-            with met_col7:
-                st.metric("Uncertain Missing", summary['uncertain_missing_count'])
-            with met_col8:
-                st.metric("Drift Alerts", summary['drift_alerts_count'])
-            
-            st.divider()
-            
-            # ===========================================
-            # EXECUTIVE SUMMARY
-            # ===========================================
-            if input_files.get('executive_summary'):
-                st.markdown("### 📝 Executive Summary")
-                st.markdown("""
-                <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); 
-                            border-radius: 12px; padding: 20px; border-left: 4px solid #6366f1;">
-                """, unsafe_allow_html=True)
-                
-                # Parse and format the executive summary
-                summary_text = input_files['executive_summary']
-                st.markdown(summary_text)
-                st.markdown("</div>", unsafe_allow_html=True)
-                
-                st.divider()
-            
-            # ===========================================
-            # DETAILED DATA VIEWS (Expandable Sections)
-            # ===========================================
-            st.markdown("### 📋 Detailed Data Views")
-            
-            # ----- CLEANED DATA -----
-            with st.expander("✅ Cleaned Dataset", expanded=True):
-                if input_files.get('cleaned_df') is not None:
-                    cleaned_df = input_files['cleaned_df']
-                    st.caption(f"📊 {len(cleaned_df):,} rows × {len(cleaned_df.columns)} columns")
-                    st.dataframe(cleaned_df, height=400)
-                    
-                    # Download button
-                    csv_data = cleaned_df.to_csv(index=False).encode('utf-8')
-                    st.download_button(
-                        "📥 Download Cleaned Data (CSV)",
-                        csv_data,
-                        file_name="cleaned_data.csv",
-                        mime="text/csv"
-                    )
-                else:
-                    st.warning("Cleaned dataset not available")
-            
-            # ----- COLUMN HEALTH REPORT -----
-            with st.expander("📊 Column Health Report", expanded=False):
-                if input_files.get('column_health_report') is not None:
-                    health_df = input_files['column_health_report']
-                    st.caption("Column-level quality metrics showing anomaly rates and recommendations")
-                    
-                    # Create a visual bar chart for anomaly rates
-                    if 'column' in health_df.columns and 'anomaly_pct' in health_df.columns:
-                        fig = px.bar(
-                            health_df.sort_values('anomaly_pct', ascending=False),
-                            x='column',
-                            y='anomaly_pct',
-                            color='severity' if 'severity' in health_df.columns else None,
-                            title='Anomaly Rate by Column',
-                            labels={'anomaly_pct': 'Anomaly %', 'column': 'Column'},
-                            color_discrete_map={'LOW': '#10b981', 'MEDIUM': '#f59e0b', 'HIGH': '#ef4444'}
-                        )
-                        fig.update_layout(
-                            paper_bgcolor='rgba(0,0,0,0)',
-                            plot_bgcolor='rgba(0,0,0,0)',
-                            font={'color': 'white'},
-                            height=300
-                        )
-                        st.plotly_chart(fig, use_container_width=True)
-                    
-                    st.dataframe(health_df, height=300)
-                else:
-                    st.warning("Column health report not available")
-            
-            # ----- ANOMALIES -----
-            with st.expander("⚠️ Anomalies Detected", expanded=False):
-                if input_files.get('anomalies') is not None:
-                    anomalies_df = input_files['anomalies']
-                    st.caption("List of out-of-range and invalid values detected in the dataset")
-                    
-                    # Filter by issue type
-                    if 'issue_type' in anomalies_df.columns:
-                        issue_types = ['All'] + list(anomalies_df['issue_type'].unique())
-                        selected_type = st.selectbox("Filter by Issue Type", issue_types, key="anomaly_filter")
-                        
-                        if selected_type != 'All':
-                            filtered_df = anomalies_df[anomalies_df['issue_type'] == selected_type]
-                        else:
-                            filtered_df = anomalies_df
-                        
-                        st.dataframe(filtered_df, height=300)
-                    else:
-                        st.dataframe(anomalies_df, height=300)
-                else:
-                    st.warning("Anomalies data not available")
-            
-            # ----- AUDIT LOG -----
-            with st.expander("📝 Audit Log (Changes Made)", expanded=False):
-                if input_files.get('audit_log') is not None:
-                    audit_df = input_files['audit_log']
-                    st.caption("Complete log of all corrections and modifications applied to the data")
-                    
-                    # Show summary by column
-                    if 'column' in audit_df.columns:
-                        col_summary = audit_df.groupby('column').size().reset_index(name='corrections')
-                        col_summary = col_summary.sort_values('corrections', ascending=False)
-                        
-                        st.markdown("**Corrections by Column:**")
-                        fig = px.bar(
-                            col_summary.head(10),
-                            x='column',
-                            y='corrections',
-                            title='Top 10 Columns with Most Corrections',
-                            color='corrections',
-                            color_continuous_scale='Blues'
-                        )
-                        fig.update_layout(
-                            paper_bgcolor='rgba(0,0,0,0)',
-                            plot_bgcolor='rgba(0,0,0,0)',
-                            font={'color': 'white'},
-                            height=300
-                        )
-                        st.plotly_chart(fig, use_container_width=True)
-                    
-                    st.dataframe(audit_df, height=300)
-                else:
-                    st.warning("Audit log not available")
-            
-            # ----- DRIFT ALERTS -----
-            with st.expander("📈 Drift Alerts", expanded=False):
-                if input_files.get('drift_alerts') is not None:
-                    drift_df = input_files['drift_alerts']
-                    st.caption("Column-wise comparison of summary statistics between historical and current data")
-                    
-                    # Highlight drift types
-                    if 'drift_type' in drift_df.columns:
-                        drift_counts = drift_df['drift_type'].value_counts()
-                        drift_col1, drift_col2 = st.columns(2)
-                        
-                        with drift_col1:
-                            st.markdown("**Drift Types Found:**")
-                            for dtype, count in drift_counts.items():
-                                icon = "🔴" if "SHIFT" in str(dtype) else "🟡" if "SCALE" in str(dtype) else "🟠"
-                                st.write(f"{icon} {dtype}: {count}")
-                        
-                        with drift_col2:
-                            fig = px.pie(
-                                values=drift_counts.values,
-                                names=drift_counts.index,
-                                title='Drift Types Distribution'
-                            )
-                            fig.update_layout(
-                                paper_bgcolor='rgba(0,0,0,0)',
-                                font={'color': 'white'},
-                                height=250
-                            )
-                            st.plotly_chart(fig, use_container_width=True)
-                    
-                    st.dataframe(drift_df, height=300)
-                else:
-                    st.warning("Drift alerts not available")
-            
-            # ----- VALID NULLS -----
-            with st.expander("✅ Valid Nulls (Questionnaire Logic)", expanded=False):
-                if input_files.get('valid_nulls') is not None:
-                    valid_nulls_df = input_files['valid_nulls']
-                    st.caption("Missing values identified as valid due to survey skip logic or branching")
-                    
-                    # Summary by column
-                    if 'column' in valid_nulls_df.columns:
-                        null_summary = valid_nulls_df.groupby('column').size().reset_index(name='count')
-                        null_summary = null_summary.sort_values('count', ascending=False)
-                        
-                        st.markdown(f"**{len(valid_nulls_df)} valid nulls across {len(null_summary)} columns:**")
-                        st.dataframe(null_summary, height=200)
-                    
-                    st.dataframe(valid_nulls_df, height=300)
-                else:
-                    st.warning("Valid nulls data not available")
-            
-            # ----- UNCERTAIN MISSING -----
-            with st.expander("❓ Uncertain Missing Values", expanded=False):
-                if input_files.get('uncertain_missing') is not None:
-                    uncertain_df = input_files['uncertain_missing']
-                    st.caption("Missing values that require manual review - not explained by questionnaire logic")
-                    
-                    # Summary by column
-                    if 'column' in uncertain_df.columns:
-                        uncertain_summary = uncertain_df.groupby('column').size().reset_index(name='count')
-                        uncertain_summary = uncertain_summary.sort_values('count', ascending=False)
-                        
-                        st.markdown(f"**{len(uncertain_df)} uncertain missing values across {len(uncertain_summary)} columns:**")
-                        
-                        fig = px.bar(
-                            uncertain_summary,
-                            x='column',
-                            y='count',
-                            title='Uncertain Missing by Column',
-                            color='count',
-                            color_continuous_scale='Reds'
-                        )
-                        fig.update_layout(
-                            paper_bgcolor='rgba(0,0,0,0)',
-                            plot_bgcolor='rgba(0,0,0,0)',
-                            font={'color': 'white'},
-                            height=300
-                        )
-                        st.plotly_chart(fig, use_container_width=True)
-                    
-                    st.dataframe(uncertain_df, height=300)
-                else:
-                    st.warning("Uncertain missing data not available")
-            
-            st.divider()
-            
-            # ===========================================
-            # 🎯 HARMONIZATION WORKFLOW - MAIN FEATURE
-            # ===========================================
-            st.markdown("### 🎯 Final Harmonization Workflow")
-            st.caption("Configure how to handle uncertain missing values and generate the final harmonized file")
-            
-            # Get columns that need imputation
-            columns_needing_imputation = get_columns_needing_imputation(input_files)
-            
-            if columns_needing_imputation:
-                st.markdown(f"**📋 {len(columns_needing_imputation)} columns have uncertain missing values that need decisions:**")
-                
-                # Initialize session state for imputation strategies
-                if 'imputation_strategies' not in st.session_state:
-                    st.session_state.imputation_strategies = {}
-                
-                # Create a form for imputation strategies
-                with st.form("imputation_form"):
-                    st.markdown("**Select imputation strategy for each column:**")
-                    
-                    # Create columns for better layout
-                    strategies_selected = {}
-                    
-                    for col_name, col_info in columns_needing_imputation.items():
-                        col_a, col_b, col_c = st.columns([2, 1, 2])
-                        
-                        with col_a:
-                            st.markdown(f"**{col_name}**")
-                            st.caption(f"Type: {col_info['data_type']} | Missing: {col_info['missing_count']}")
-                        
-                        with col_b:
-                            # Determine default strategy based on column type
-                            if col_info['is_numeric']:
-                                options = ['mean', 'median', 'mode', 'zero', 'keep', 'remove', 'drop']
-                                default_idx = 0  # mean
-                            else:
-                                options = ['mode', 'unknown', 'other', 'keep', 'remove', 'drop']
-                                default_idx = 0  # mode
-                            
-                            strategy = st.selectbox(
-                                f"Strategy for {col_name}",
-                                options=options,
-                                index=default_idx,
-                                key=f"strategy_{col_name}",
-                                label_visibility="collapsed"
-                            )
-                            strategies_selected[col_name] = strategy
-                        
-                        with col_c:
-                            if col_info['sample_values']:
-                                st.caption(f"Sample: {col_info['sample_values'][:3]}")
-                    
-                    st.divider()
-                    
-                    # Additional options
-                    opt_col1, opt_col2 = st.columns(2)
-                    with opt_col1:
-                        keep_valid_nulls = st.checkbox(
-                            "✅ Preserve valid nulls (questionnaire logic)",
-                            value=True,
-                            help="Keep missing values that are valid due to survey skip logic"
-                        )
-                    with opt_col2:
-                        output_format = st.selectbox(
-                            "Output format",
-                            options=['CSV', 'Excel (.xlsx)'],
-                            index=0
-                        )
-                    
-                    # Submit button
-                    run_harmonization = st.form_submit_button(
-                        "🚀 Run Final Harmonization",
-                        use_container_width=True,
-                        type="primary"
-                    )
-                
-                # Process harmonization when button is clicked
-                if run_harmonization:
-                    with st.spinner("Running harmonization..."):
-                        try:
-                            # Run the harmonization
-                            harmonized_df, changes_log, stats = perform_final_harmonization(
-                                input_files=input_files,
-                                imputation_strategies=strategies_selected,
-                                keep_valid_nulls=keep_valid_nulls
-                            )
-                            
-                            # Store results in session state
-                            st.session_state.final_harmonized_df = harmonized_df
-                            st.session_state.harmonization_log = changes_log
-                            st.session_state.harmonization_stats = stats
-                            st.session_state.harmonization_complete = True
-                            
-                            st.success("✅ Harmonization complete!")
-                            
-                        except Exception as e:
-                            st.error(f"❌ Harmonization failed: {str(e)}")
-                            st.session_state.harmonization_complete = False
-                
-                # Show results if harmonization is complete
-                if st.session_state.get('harmonization_complete'):
-                    st.divider()
-                    st.markdown("### ✅ Harmonization Results")
-                    
-                    # Show statistics
-                    stats = st.session_state.harmonization_stats
-                    stat_col1, stat_col2, stat_col3, stat_col4 = st.columns(4)
-                    with stat_col1:
-                        st.metric("Rows", f"{stats['rows_after']:,}", 
-                                  delta=f"{stats['rows_after'] - stats['rows_before']}" if stats['rows_after'] != stats['rows_before'] else None)
-                    with stat_col2:
-                        st.metric("Missing Before", f"{stats['missing_before']:,}")
-                    with stat_col3:
-                        st.metric("Missing After", f"{stats['missing_after']:,}",
-                                  delta=f"-{stats['missing_before'] - stats['missing_after']}")
-                    with stat_col4:
-                        st.metric("Values Imputed", f"{stats['values_imputed']:,}")
-                    
-                    # Show changes log
-                    with st.expander("📋 Changes Log", expanded=True):
-                        for log_entry in st.session_state.harmonization_log:
-                            st.markdown(log_entry)
-                    
-                    # Preview final data
-                    with st.expander("👀 Preview Final Harmonized Data", expanded=True):
-                        st.dataframe(st.session_state.final_harmonized_df.head(100), height=400)
-                        st.caption(f"Showing first 100 rows of {len(st.session_state.final_harmonized_df):,} total rows")
-                    
-                    # Download buttons
-                    st.markdown("### 📥 Download Final Harmonized File")
-                    
-                    dl_col1, dl_col2, dl_col3 = st.columns(3)
-                    
-                    with dl_col1:
-                        # CSV download
-                        csv_data = st.session_state.final_harmonized_df.to_csv(index=False).encode('utf-8')
-                        st.download_button(
-                            "📥 Download as CSV",
-                            csv_data,
-                            file_name="FINAL_harmonized_data.csv",
-                            mime="text/csv",
-                            key="download_final_csv",
-                            use_container_width=True
-                        )
-                    
-                    with dl_col2:
-                        # Excel download
-                        import io
-                        excel_buffer = io.BytesIO()
-                        st.session_state.final_harmonized_df.to_excel(excel_buffer, index=False, engine='openpyxl')
-                        excel_data = excel_buffer.getvalue()
-                        st.download_button(
-                            "📥 Download as Excel",
-                            excel_data,
-                            file_name="FINAL_harmonized_data.xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            key="download_final_excel",
-                            use_container_width=True
-                        )
-                    
-                    with dl_col3:
-                        # Changes log download
-                        log_text = "\n".join(st.session_state.harmonization_log)
-                        st.download_button(
-                            "📥 Download Changes Log",
-                            log_text,
-                            file_name="harmonization_changes_log.txt",
-                            mime="text/plain",
-                            key="download_log",
-                            use_container_width=True
-                        )
-                    
-                    # Save to output folder
-                    st.divider()
-                    save_col1, save_col2 = st.columns([1, 2])
-                    with save_col1:
-                        if st.button("💾 Save to Output Folder", use_container_width=True):
-                            try:
-                                output_path = OUTPUT_DIR / "FINAL_harmonized_data.csv"
-                                OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-                                st.session_state.final_harmonized_df.to_csv(output_path, index=False)
-                                st.success(f"✅ Saved to: {output_path}")
-                            except Exception as e:
-                                st.error(f"❌ Failed to save: {str(e)}")
-                    with save_col2:
-                        st.caption(f"Will save to: {OUTPUT_DIR / 'FINAL_harmonized_data.csv'}")
-            
-            else:
-                st.success("✅ No uncertain missing values to handle! The cleaned dataset is ready.")
-                
-                # Direct download of cleaned_df as final
-                if input_files.get('cleaned_df') is not None:
-                    st.markdown("### 📥 Download Final Harmonized File")
-                    
-                    dl_col1, dl_col2 = st.columns(2)
-                    with dl_col1:
-                        csv_data = input_files['cleaned_df'].to_csv(index=False).encode('utf-8')
-                        st.download_button(
-                            "📥 Download as CSV",
-                            csv_data,
-                            file_name="FINAL_harmonized_data.csv",
-                            mime="text/csv",
-                            key="download_final_direct_csv",
-                            use_container_width=True
-                        )
-                    with dl_col2:
-                        import io
-                        excel_buffer = io.BytesIO()
-                        input_files['cleaned_df'].to_excel(excel_buffer, index=False, engine='openpyxl')
-                        excel_data = excel_buffer.getvalue()
-                        st.download_button(
-                            "📥 Download as Excel",
-                            excel_data,
-                            file_name="FINAL_harmonized_data.xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            key="download_final_direct_excel",
-                            use_container_width=True
-                        )
-            
-            st.divider()
-            
-            # ===========================================
-            # DETAILED DATA VIEWS (Expandable)
-            # ===========================================
-            st.markdown("### 📋 View Input Files (Reference)")
-            st.caption("Expand sections below to view the source input files")
-            
-            # ----- CLEANED DATA -----
-            with st.expander("✅ Base Dataset (cleaned_df)", expanded=False):
-                if input_files.get('cleaned_df') is not None:
-                    cleaned_df = input_files['cleaned_df']
-                    st.caption(f"📊 {len(cleaned_df):,} rows × {len(cleaned_df.columns)} columns")
-                    st.dataframe(cleaned_df, height=400)
-                else:
-                    st.warning("Cleaned dataset not available")
-            
-            # ----- AUDIT LOG -----
-            with st.expander("📝 Audit Log (Changes Already Applied)", expanded=False):
-                if input_files.get('audit_log') is not None:
-                    audit_df = input_files['audit_log']
-                    st.caption(f"Total corrections: {len(audit_df)}")
-                    st.dataframe(audit_df, height=300)
-                else:
-                    st.warning("Audit log not available")
-            
-            # ----- COLUMN HEALTH -----
-            with st.expander("📊 Column Health Report", expanded=False):
-                if input_files.get('column_health_report') is not None:
-                    st.dataframe(input_files['column_health_report'], height=300)
-                else:
-                    st.warning("Column health report not available")
-            
-            # ----- ANOMALIES -----
-            with st.expander("⚠️ Anomalies Detected", expanded=False):
-                if input_files.get('anomalies') is not None:
-                    st.dataframe(input_files['anomalies'], height=300)
-                else:
-                    st.warning("Anomalies not available")
-            
-            # ----- DRIFT ALERTS -----
-            with st.expander("📈 Drift Alerts", expanded=False):
-                if input_files.get('drift_alerts') is not None:
-                    st.dataframe(input_files['drift_alerts'], height=300)
-                else:
-                    st.warning("Drift alerts not available")
-            
-            # ----- VALID NULLS -----
-            with st.expander("✅ Valid Nulls", expanded=False):
-                if input_files.get('valid_nulls') is not None:
-                    st.dataframe(input_files['valid_nulls'], height=300)
-                else:
-                    st.warning("Valid nulls not available")
-            
-            # ----- UNCERTAIN MISSING -----
-            with st.expander("❓ Uncertain Missing", expanded=False):
-                if input_files.get('uncertain_missing') is not None:
-                    st.dataframe(input_files['uncertain_missing'], height=300)
-                else:
-                    st.warning("Uncertain missing not available")
-        
-        else:
-            st.warning("⚠️ Could not load the input files. Please ensure the 'Input files' folder exists and contains the required Excel files.")
-            st.info(f"📂 Expected folder: {INPUT_FILES_DIR}")
-    
-    else:
-        st.info("👆 Click 'Load Input Files' to view harmonization results from the Input files folder")
-        
-        # Show expected file structure
-        with st.expander("📁 Expected Input Files Structure", expanded=False):
-            st.markdown("""
-            The **Input files** folder should contain:
-            
-            | File | Description |
-            |------|-------------|
-            | `cleaned_df.xlsx` | The harmonized dataset after corrections |
-            | `anomalies.xlsx` | List of out-of-range values detected |
-            | `audit_log.xlsx` | Log of all modifications made |
-            | `column_health_report.xlsx` | Column-level quality metrics |
-            | `drift_alerts.xlsx` | Data drift between historical and current |
-            | `valid_nulls.xlsx` | Valid missing values (skip logic) |
-            | `uncertain_missing.xlsx` | Missing values needing review |
-            | `systemic_executive_summary.txt` | AI-generated summary |
-            """)
 
 
 # =============================================================================

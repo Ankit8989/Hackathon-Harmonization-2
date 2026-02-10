@@ -1,7 +1,7 @@
 schema_name: auto_master_metadata
 version: 1.0.0
 description: Auto-generated master metadata from unclean input
-created_at: '2026-02-04T06:28:08.530277'
+created_at: '2026-02-10T12:54:53.698005'
 columns:
 - name: Respondent_Serial
   canonical_name: Respondent_Serial
