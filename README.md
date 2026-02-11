@@ -1,6 +1,6 @@
 # 🤖 Agentic AI Data Harmonization System
 
-> **Autonomous Data Pipeline powered by Azure OpenAI GPT-5.2**
+> **Autonomous Data Pipeline powered by Azure OpenAI GPT-5.2 — MIT License — Built for Kantar Hackathon 2026**
 
 An intelligent, agent-based system for automated data ingestion, validation, quality assessment, and harmonization. Built for the Hackathon 2024.
 
@@ -617,7 +617,7 @@ Hackathon/
 
 ## 📜 License
 
-MIT License - Built for Hackathon 2024
+MIT License — Built for Kantar Hackathon 2026
 
 ---
 
