@@ -233,18 +233,24 @@ You NEVER see raw data. You only see:
 - Per-column statistics (null %, min, max, mean, top values)
 - Overall data-quality summary
 - Optional error message from the last code you generated
+- Optional learned fixes from previous runs
 
 Your job is to:
 - Generate SAFE Python code that operates on a pandas DataFrame named df
-- Actually CHANGE df to improve missing-value handling and obvious data-quality problems
+- Actually CHANGE df to improve missing-value handling, format issues, and obvious data-quality problems
 - Avoid file I/O, network calls, or imports (pd and np are already available)
 
 YOU MUST:
 - Always modify df in a meaningful way (no-op code is not allowed)
-- Prioritize the top 3–5 columns with the highest null percentage
+- Look at "top_values" for each column: if you see date-like values with WRONG separators (e.g. "2024 > 06 > 01" using " > " instead of "-"), fix them to standard format. For survey/data dates use hyphen: YYYY-MM-DD. Example: df["survey_date"] = df["survey_date"].astype(str).str.replace(" > ", "-", regex=False) then parse with pd.to_datetime(..., errors="coerce") and format back to "%Y-%m-%d".
+- Fix other format issues (typos, inconsistent casing, wrong delimiters) when evident from top_values.
+- Prioritize the top 3–5 columns with the highest null percentage for imputation
 - For numeric columns with missing values, use mean/median imputation
 - For categorical/string columns with missing values, use a constant like "Unknown"
 - Keep transformations simple and explainable
+
+LEARNED FROM PREVIOUS RUNS (use to improve this run):
+{learned_format_fixes}
 
 Current iteration: {iteration}
 
@@ -262,6 +268,7 @@ RULES:
 - Do NOT read or write any files
 - Do NOT import any new libraries
 - Focus on:
+  - fixing date/format issues (wrong separators like " > " in dates -> use "-", then standard YYYY-MM-DD)
   - filling or safely handling missing values
   - fixing obviously invalid numeric ranges (e.g. negative ages)
   - lightweight transformations that are reversible
@@ -272,6 +279,63 @@ RESPOND IN STRICT JSON (no comments, no extra keys) with this shape:
   "description": "Short summary of what the code does.",
   "expected_effect": "What quality issues this should improve.",
   "confidence": 0.9
+}}""",
+
+        "schema_validation_from_knowledge": """You are a data engineer doing schema validation. You have LEARNED from previous runs (knowledge bag) and see CURRENT data stats. Your job is to suggest column mappings (source → master) and validation issues.
+
+LEARNED FROM PREVIOUS RUNS (knowledge bag):
+{knowledge_bag_summary}
+
+MASTER SCHEMA (target columns):
+{master_schema_summary}
+
+CURRENT DATA STATS (this file; no raw rows):
+{current_stats}
+
+TASK:
+1. Suggest column mappings: for each column in current data, map to the best matching master column (or UNMAPPED).
+2. Use knowledge bag (learned_mappings, schema_diffs, datasets) to prefer mappings we have seen before.
+3. List any validation_errors (blocking) and validation_warnings (fixable).
+4. Be concise; confidence 0.0-1.0 per mapping.
+
+RESPOND IN STRICT JSON ONLY (no markdown, no explanation):
+{{
+  "mappings": [
+    {{ "source_column": "name_in_current_data", "target_column": "master_column_or_UNMAPPED", "confidence": 0.95, "reasoning": "brief reason" }}
+  ],
+  "validation_errors": ["blocking issue 1", "..."],
+  "validation_warnings": ["fixable warning 1", "..."],
+  "analysis_summary": "1-2 sentences"
+}}""",
+
+        "suggest_harmonization_options": """You are a data engineer. Given what we LEARNED from previous runs (knowledge bag) and CURRENT data stats, suggest harmonization options. No raw rows.
+
+LEARNED FROM PREVIOUS RUNS:
+{knowledge_bag_summary}
+
+CURRENT DATA STATS (columns, null %, types, top_values):
+{current_stats}
+
+TASK: Suggest options for harmonization. Prefer learned imputation_overrides when present.
+- column_strategies: for each column with missing values, suggest one of: Replace with MEAN, Replace with MEDIAN, Replace with 0, Replace with MODE, Replace with 'Unknown', Replace with 'Other', Keep missing, Remove rows, Drop column.
+- standardize_cols: true/false (normalize column names)
+- remove_special: true/false (clean special chars in values)
+- date_standardize: true/false (normalize date columns to YYYY-MM-DD)
+- country_mapping: true/false (standardize country to codes)
+- category_mapping: true/false (standardize channel/type values)
+- default_numeric: "Replace with MEAN" or "Replace with MEDIAN" or "Replace with 0"
+- default_text: "Replace with 'Unknown'" or "Replace with 'Other'"
+
+RESPOND IN STRICT JSON ONLY:
+{{
+  "column_strategies": {{ "column_name": "Replace with MEAN" or "Replace with 'Unknown'" etc }},
+  "standardize_cols": true,
+  "remove_special": true,
+  "date_standardize": true,
+  "country_mapping": true,
+  "category_mapping": true,
+  "default_numeric": "Replace with MEAN",
+  "default_text": "Replace with 'Unknown'"
 }}"""
     }
     
@@ -572,17 +636,29 @@ RESPOND IN STRICT JSON (no comments, no extra keys) with this shape:
         stats_before: Dict[str, Any],
         dq_before: Dict[str, Any],
         last_error: Optional[str] = None,
-        iteration: int = 1
+        iteration: int = 1,
+        learned_format_fixes: Optional[List[Dict[str, Any]]] = None,
     ) -> Tuple[Dict[str, Any], float]:
         """
         Ask the LLM to generate concrete Python code that operates on df
-        to improve data quality, based ONLY on summary statistics and
-        a previous error message (if any).
+        to improve data quality, based on summary statistics, previous
+        error (if any), and learned format fixes from past runs.
         """
         self.logger.info(f"Generating agentic code for iteration {iteration}")
 
+        learned_text: str
+        if learned_format_fixes:
+            lines = [
+                f"- Column '{e.get('column', '?')}': {e.get('problem', '')} -> fix: {e.get('fix', '')}"
+                for e in learned_format_fixes[-15:]
+            ]
+            learned_text = "\n".join(lines) if lines else "None yet."
+        else:
+            learned_text = "None yet."
+
         prompt = self.PROMPT_TEMPLATES["agentic_code_improvement"].format(
             iteration=iteration,
+            learned_format_fixes=learned_text,
             stats_before=json.dumps(stats_before, indent=2),
             dq_before=json.dumps(dq_before, indent=2),
             last_error=json.dumps(last_error or "", ensure_ascii=False),
@@ -611,6 +687,122 @@ RESPOND IN STRICT JSON (no comments, no extra keys) with this shape:
         )
 
         return result, tokens
+
+    def schema_validation_from_knowledge(
+        self,
+        knowledge_bag: Dict[str, Any],
+        current_stats: Dict[str, Any],
+        master_schema: Dict[str, Any],
+    ) -> Tuple[Dict[str, Any], int]:
+        """
+        AI-driven schema validation using knowledge bag (learned from past runs) and current data stats.
+        Returns (result with mappings, validation_errors, validation_warnings), tokens_used.
+        """
+        self.logger.info("Running AI-driven schema validation from knowledge bag and current stats")
+
+        # Compact summary of knowledge bag (no huge payloads)
+        kb = knowledge_bag or {}
+        datasets = kb.get("datasets") or {}
+        learned = kb.get("learned_mappings") or []
+        schema_diffs = kb.get("schema_diffs") or []
+        knowledge_bag_summary = {
+            "datasets_seen": list(datasets.keys()),
+            "dataset_columns": {k: v.get("columns", [])[:15] for k, v in list(datasets.items())[:5]},
+            "learned_mappings_recent": [
+                {"source": m.get("source_column"), "target": m.get("target_column"), "confidence": m.get("confidence")}
+                for m in learned[-30:]
+            ],
+            "schema_diffs_recent": [{"dataset": d.get("dataset"), "missing_in_source": d.get("missing_in_source", [])[:5], "extra_in_source": d.get("extra_in_source", [])[:5]} for d in schema_diffs[-10:]],
+        }
+
+        # Master schema: list of column names + types
+        master_cols = master_schema.get("columns") or []
+        master_schema_summary = [
+            {"name": c.get("name"), "data_type": c.get("data_type"), "aliases": (c.get("aliases") or [])[:5]}
+            for c in (master_cols if isinstance(master_cols, list) else list(master_cols))[:50]
+        ]
+        if not master_schema_summary and isinstance(master_schema.get("columns"), dict):
+            master_schema_summary = [{"name": k, "data_type": "unknown"} for k in list(master_schema["columns"].keys())[:50]]
+
+        prompt = self.PROMPT_TEMPLATES["schema_validation_from_knowledge"].format(
+            knowledge_bag_summary=json.dumps(knowledge_bag_summary, indent=2),
+            master_schema_summary=json.dumps(master_schema_summary, indent=2),
+            current_stats=json.dumps(current_stats, indent=2),
+        )
+        messages = [
+            {"role": "system", "content": "You are a data engineer. Respond with valid JSON only. No markdown, no explanation."},
+            {"role": "user", "content": prompt},
+        ]
+        response, tokens = self.call_llm(messages, purpose="schema_validation_from_knowledge")
+        result = self._parse_json_response(response)
+
+        # Normalize to shape app expects: column_mappings with source_column, target_column, confidence, reasoning
+        mappings = result.get("mappings") or []
+        column_mappings = []
+        for m in mappings:
+            column_mappings.append({
+                "source_column": m.get("source_column") or m.get("source"),
+                "target_column": m.get("target_column") or m.get("target") or "UNMAPPED",
+                "confidence": float(m.get("confidence", 0.8)),
+                "reasoning": m.get("reasoning") or "",
+            })
+        out = {
+            "column_mappings": column_mappings,
+            "validation_errors": result.get("validation_errors") or [],
+            "validation_warnings": result.get("validation_warnings") or [],
+            "analysis_summary": result.get("analysis_summary") or "",
+        }
+        self.add_audit_entry(
+            action="Schema validation from knowledge",
+            status=ProcessingStatus.COMPLETED,
+            confidence_score=0.85,
+            details=f"{len(column_mappings)} mappings",
+        )
+        return out, tokens
+
+    def suggest_harmonization_options(
+        self,
+        knowledge_bag: Dict[str, Any],
+        current_stats: Dict[str, Any],
+    ) -> Tuple[Dict[str, Any], int]:
+        """
+        AI-driven harmonization options from knowledge bag + current data stats.
+        Returns (options dict to merge into harmonization_options, tokens_used).
+        """
+        self.logger.info("Suggesting harmonization options from knowledge bag and current stats")
+        kb = knowledge_bag or {}
+        imputation = kb.get("imputation_overrides") or []
+        learned = kb.get("learned_mappings") or []
+        knowledge_bag_summary = {
+            "imputation_overrides_recent": [{"column": e.get("column"), "strategy": e.get("strategy")} for e in imputation[-20:]],
+            "learned_mappings_count": len(learned),
+        }
+        prompt = self.PROMPT_TEMPLATES["suggest_harmonization_options"].format(
+            knowledge_bag_summary=json.dumps(knowledge_bag_summary, indent=2),
+            current_stats=json.dumps(current_stats, indent=2),
+        )
+        messages = [
+            {"role": "system", "content": "You are a data engineer. Respond with valid JSON only. No markdown."},
+            {"role": "user", "content": prompt},
+        ]
+        response, tokens = self.call_llm(messages, purpose="suggest_harmonization_options")
+        result = self._parse_json_response(response)
+        options = {
+            "column_strategies": result.get("column_strategies") or {},
+            "standardize_cols": result.get("standardize_cols", True),
+            "remove_special": result.get("remove_special", True),
+            "date_standardize": result.get("date_standardize", True),
+            "country_mapping": result.get("country_mapping", True),
+            "category_mapping": result.get("category_mapping", True),
+            "default_numeric": result.get("default_numeric") or "Replace with MEAN",
+            "default_text": result.get("default_text") or "Replace with 'Unknown'",
+        }
+        self.add_audit_entry(
+            action="Suggested harmonization options",
+            status=ProcessingStatus.COMPLETED,
+            confidence_score=0.85,
+        )
+        return options, tokens
     
     def _parse_json_response(self, response: str) -> Dict[str, Any]:
         """

@@ -1,0 +1,43 @@
+# Master schema for test_input CSVs (respondent_id, survey_date, country, age, gender, satisfaction_score, nps_score, purchase_intent, channel)
+schema_name: test_master_metadata
+version: 1.0
+description: Master metadata for test_input folder - use with Multi-Source Harmonization
+columns:
+  - name: respondent_id
+    canonical_name: respondent_id
+    data_type: string
+    aliases: [resp_id, id, record_id]
+  - name: survey_date
+    canonical_name: survey_date
+    data_type: datetime
+    aliases: [interview_date, date]
+  - name: country
+    canonical_name: country
+    data_type: categorical
+    aliases: [market]
+  - name: age
+    canonical_name: age
+    data_type: categorical
+    aliases: [age_group]
+  - name: gender
+    canonical_name: gender
+    data_type: categorical
+    aliases: []
+  - name: satisfaction_score
+    canonical_name: satisfaction_score
+    data_type: float
+    validation_rules: { min_value: 0, max_value: 100 }
+    aliases: [csat]
+  - name: nps_score
+    canonical_name: nps_score
+    data_type: integer
+    validation_rules: { min_value: 0, max_value: 10 }
+    aliases: [nps]
+  - name: purchase_intent
+    canonical_name: purchase_intent
+    data_type: categorical
+    aliases: [purchase_likelihood]
+  - name: channel
+    canonical_name: channel
+    data_type: categorical
+    aliases: []

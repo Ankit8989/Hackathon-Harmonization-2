@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+import pandas as pd
 import yaml
 
 
@@ -23,7 +24,8 @@ def load_knowledge_bag(path: Path) -> Dict[str, Any]:
         "schema_diffs": [],
         "learned_mappings": [],
         "level_suggestions": [],
-        "imputation_overrides": []
+        "imputation_overrides": [],
+        "learned_format_fixes": [],
     }
 
 
@@ -32,6 +34,49 @@ def save_knowledge_bag(path: Path, knowledge_bag: Dict[str, Any]) -> None:
     knowledge_bag["last_updated"] = datetime.utcnow().isoformat()
     with open(path, "w", encoding="utf-8") as f:
         yaml.safe_dump(knowledge_bag, f, sort_keys=False)
+
+
+def add_learned_format_fix(
+    knowledge_bag: Dict[str, Any],
+    column: str,
+    problem_description: str,
+    fix_description: str,
+    sample_before: Optional[str] = None,
+    sample_after: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Store a format fix learned by the AI (e.g. date separator ' > ' -> '-') for reuse in future runs."""
+    knowledge_bag.setdefault("learned_format_fixes", [])
+    knowledge_bag["learned_format_fixes"].append({
+        "column": column,
+        "problem": problem_description,
+        "fix": fix_description,
+        "sample_before": sample_before,
+        "sample_after": sample_after,
+        "timestamp": datetime.utcnow().isoformat(),
+    })
+    return knowledge_bag
+
+
+def apply_learned_format_fixes(
+    df: pd.DataFrame,
+    learned_format_fixes: List[Dict[str, Any]],
+) -> pd.DataFrame:
+    """Apply learned format fixes to df (e.g. date separator ' > ' -> '-') so harmonization output is correct."""
+    if df is None or df.empty or not learned_format_fixes:
+        return df
+    out = df.copy()
+    date_like = [c for c in out.columns if any(x in c.lower() for x in ["date", "time", "dt", "period"])]
+    for fix in learned_format_fixes:
+        problem = (fix.get("problem") or "").lower()
+        col_hint = fix.get("column") or ""
+        if "separator" in problem or "date" in problem or " > " in (fix.get("fix") or ""):
+            cols = [col_hint] if col_hint in out.columns else date_like
+            for col in cols:
+                if col not in out.columns or out[col].dtype != "object":
+                    continue
+                if out[col].astype(str).str.contains(" > ", regex=False, na=False).any():
+                    out[col] = out[col].astype(str).str.replace(" > ", "-", regex=False)
+    return out
 
 
 def update_imputation_overrides(

@@ -1,0 +1,10 @@
+dataset,column,inferred_type,missing_pct,unique_count,mean,median,mode,min,max,std,outlier_count,scale_consistency,distribution
+unclean_input,respondent_id,integer,0.0,20,2010.5,2010.5,2001.0,2001.0,2020.0,5.916079783099616,0.0,mixed,
+unclean_input,survey_date,string,30.0,14,,,2024-06-01,,,,,,"{""2024-06-01"": 1, ""2024-06-03"": 1, ""2024-06-04"": 1, ""2024-06-05"": 1, ""2024-06-07"": 1}"
+unclean_input,country,string,15.0,11,,,Australia,,,,,,"{""Australia"": 3, ""France"": 2, ""UK"": 2, ""Spain"": 2, ""Canada"": 2}"
+unclean_input,age,string,35.0,5,,,35 to 44,,,,,,"{""35 to 44"": 4, ""25 to 34"": 3, ""18 to 24"": 3, ""45 to 54"": 2, ""55 plus"": 1}"
+unclean_input,gender,string,15.0,3,,,M,,,,,,"{""M"": 7, ""Other"": 6, ""F"": 4}"
+unclean_input,satisfaction_score,float,20.0,16,48.125,46.5,15.0,15.0,96.0,27.234475700234558,0.0,0-100,
+unclean_input,nps_score,float,30.0,7,4.285714285714286,3.5,3.0,0.0,10.0,3.2446066830160674,0.0,0-10,
+unclean_input,purchase_intent,string,30.0,4,,,Likely,,,,,,"{""Very Unlikely"": 5, ""Likely"": 5, ""Neutral"": 3, ""Unlikely"": 1}"
+unclean_input,channel,string,20.0,4,,,Mobile,,,,,,"{""Mobile"": 6, ""Online"": 5, ""Retail"": 3, ""Social"": 2}"

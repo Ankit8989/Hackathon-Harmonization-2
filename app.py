@@ -57,11 +57,17 @@ load_dotenv()
 
 from config import INPUT_DIR, OUTPUT_DIR, REPORTS_DIR, METADATA_DIR, AZURE_CONFIG
 from utils.multi_source_harmonizer import MultiSourceHarmonizer
-from utils.knowledge_bag import load_knowledge_bag, save_knowledge_bag, update_imputation_overrides
+from utils.knowledge_bag import (
+    apply_learned_format_fixes,
+    load_knowledge_bag,
+    save_knowledge_bag,
+    update_imputation_overrides,
+)
 from utils.agentic_loop import run_agentic_loop
-from agents.structural_validation_agent import StructuralValidationAgent
+from agents.llm_reasoning_agent import get_llm_reasoning_agent
 from utils.file_handlers import MetadataHandler
 from utils.supporting_files_generator import generate_supporting_files
+from utils.token_tracker import record_token_usage
 
 
 # =============================================================================
@@ -238,7 +244,8 @@ def apply_mapping_decisions(
     """Apply mapping decisions to a dataframe."""
     rename_map: Dict[str, str] = {}
     drop_cols: List[str] = []
-    used_targets: Dict[str, int] = {}
+    # Track which target columns have already been claimed by another source column.
+    used_targets: set[str] = set()
 
     for source_col in df.columns:
         decision = decisions.get(source_col, {})
@@ -249,12 +256,14 @@ def apply_mapping_decisions(
             drop_cols.append(source_col)
             continue
 
-        if action in {"confirm", "map_to"} and target:
-            target_name = target
-            if target_name in used_targets or target_name in df.columns:
-                used_targets[target_name] = used_targets.get(target_name, 0) + 1
-                target_name = f"{target_name}_dup{used_targets[target_name]}"
-            rename_map[source_col] = target_name
+        # Treat UNMAPPED as "leave column as-is" unless user explicitly chose skip.
+        if action in {"confirm", "map_to"} and target and target != "UNMAPPED":
+            # If another source column already mapped to this target, keep the first one only.
+            # Later mappings to the same target are ignored (source column stays under its original name).
+            if target in used_targets:
+                continue
+            used_targets.add(target)
+            rename_map[source_col] = target
 
     mapped = df.drop(columns=drop_cols, errors="ignore").rename(columns=rename_map)
     return mapped
@@ -741,6 +750,9 @@ Be concise. Focus on columns with missing values only. Do not repeat generic act
         
         result_text = response.choices[0].message.content
         tokens_used = response.usage.total_tokens if response.usage else 0
+        
+        # Record token usage for tracking (same as agents do)
+        record_token_usage("AnalyzeWithAI", "data_quality_analysis", tokens_used)
         
         # Parse JSON response
         ai_result = json.loads(result_text)
@@ -1435,19 +1447,23 @@ def harmonize_data_local(df: pd.DataFrame, options: dict) -> tuple:
     # ========================================
     if options.get('date_standardize', True):
         date_cols = [c for c in harmonized_df.columns if any(x in c.lower() for x in ['date', 'time', 'dt', 'period'])]
+        # Normalize common survey-date quirk: "2024 > 06 > 01" -> "2024-06-01" so parsing works (AI learns this; we apply here so output is correct)
+        for col in date_cols:
+            if harmonized_df[col].dtype == 'object':
+                sample = harmonized_df[col].astype(str)
+                if sample.str.contains(' > ', regex=False, na=False).any():
+                    harmonized_df[col] = harmonized_df[col].astype(str).str.replace(' > ', '-', regex=False)
+                    changes_log.append(f"📅 Normalized date separator in '{col}' ( >  → - )")
         standardized_dates = 0
-        
         for col in date_cols:
             try:
-                # Try to parse dates - update IN PLACE (don't create new column)
                 parsed = pd.to_datetime(harmonized_df[col], errors='coerce', infer_datetime_format=True)
                 valid_count = parsed.notna().sum()
-                if valid_count > len(harmonized_df) * 0.5:  # At least 50% valid dates
-                    harmonized_df[col] = parsed.dt.strftime('%Y-%m-%d')  # Update original column
+                if valid_count > len(harmonized_df) * 0.5:
+                    harmonized_df[col] = parsed.dt.strftime('%Y-%m-%d')
                     standardized_dates += 1
-            except:
+            except Exception:
                 pass
-        
         if standardized_dates > 0:
             changes_log.append(f"📅 Standardized {standardized_dates} date columns to YYYY-MM-DD")
     
@@ -1511,26 +1527,51 @@ def harmonize_data_local(df: pd.DataFrame, options: dict) -> tuple:
 
 
 def run_pipeline(df: pd.DataFrame, progress_callback) -> dict:
-    """Run the harmonization pipeline"""
+    """Run the harmonization pipeline (AI-driven options when API available, then local apply)."""
     
-    # Get harmonization options from session state
-    options = st.session_state.get('harmonization_options', {
+    # Base options from session state
+    options = dict(st.session_state.get('harmonization_options', {
         'standardize_cols': True,
         'remove_special': True,
         'default_numeric': 'Replace with MEAN',
         'default_text': "Replace with 'Unknown'",
         'column_strategies': {},
         'remove_missing_rows': False
-    })
+    }))
     
-    progress_callback(0.1, "Initializing...")
+    progress_callback(0.05, "Initializing...")
     
     # Ensure output directory exists
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     INPUT_DIR.mkdir(parents=True, exist_ok=True)
     
+    # Load knowledge bag (for learned fixes and AI options)
+    knowledge_bag_path = METADATA_DIR / "knowledge_bag.yaml"
+    knowledge_bag = load_knowledge_bag(knowledge_bag_path)
+    learned = knowledge_bag.get("learned_format_fixes") or []
+    if learned:
+        df = apply_learned_format_fixes(df, learned)
+    
+    # AI-driven harmonization options: get suggestions from API (knowledge bag + data stats)
+    try:
+        from utils.agentic_loop import _summarize_dataframe
+        current_stats = _summarize_dataframe(df)
+        progress_callback(0.1, "Getting AI-suggested harmonization options...")
+        llm_agent = get_llm_reasoning_agent()
+        ai_options, _ = llm_agent.suggest_harmonization_options(
+            knowledge_bag=knowledge_bag,
+            current_stats=current_stats,
+        )
+        # Merge AI suggestions into options (AI overrides session defaults for these keys)
+        for k, v in ai_options.items():
+            if k in options or k in ("column_strategies", "standardize_cols", "remove_special", "date_standardize", "country_mapping", "category_mapping", "default_numeric", "default_text"):
+                options[k] = v
+    except Exception:
+        # No API or API failed: use session state options only
+        pass
+    
     # ========================================
-    # STEP 1: LOCAL HARMONIZATION (NO API)
+    # STEP 1: APPLY HARMONIZATION (AI-SUGGESTED OPTIONS OR SESSION OPTIONS)
     # ========================================
     progress_callback(0.2, "Applying harmonization transformations...")
     harmonized_df, changes_log = harmonize_data_local(df, options)
@@ -1977,7 +2018,11 @@ with tab1:
         # AUTO-GENERATE SUPPORTING FILES
         # ===========================================
         st.subheader("🧰 Auto-Build Supporting Files (from Unclean Input)")
-        st.caption("Generates mapping, dictionary, validation rules, metadata, and stats from the uploaded file.")
+        st.caption(
+            "Optional: use this when you want to (re)generate master metadata, mapping tables, "
+            "validation rules, dictionaries and stats directly from THIS uploaded file. "
+            "Skip this if you already have good supporting files or are using the multi-source ones."
+        )
 
         spec_json_file = st.file_uploader(
             "Spec JSON (master dictionary)",
@@ -2013,119 +2058,159 @@ with tab1:
         st.divider()
 
         # ===========================================
-        # SCHEMA VALIDATION & MAPPING REVIEW
+        # SCHEMA VALIDATION (AI-DRIVEN: KNOWLEDGE BAG + DATA STATS → API)
         # ===========================================
-        st.subheader("🧩 Schema Validation — Review & Confirm")
-        st.caption("Review suggested column mappings and approve them before harmonization.")
+        st.subheader("🧩 Schema Validation (AI-driven)")
+        st.caption("Uses knowledge from previous runs (knowledge bag) and current data stats. API suggests mappings; you review and confirm.")
 
         if "schema_validation_result" not in st.session_state:
             st.session_state.schema_validation_result = None
         if "mapping_decisions" not in st.session_state:
             st.session_state.mapping_decisions = {}
 
-        run_validation = st.button("🔍 Run Schema Validation")
+        run_validation = st.button("🔍 Run AI Schema Validation")
         if run_validation:
-            with st.spinner("Running schema validation..."):
-                metadata_handler = MetadataHandler(METADATA_DIR)
-                schema_name = st.session_state.get("schema_name", "master_schema")
-                try:
-                    master_schema = metadata_handler.load_master_schema(schema_name)
-                except Exception:
-                    master_schema = metadata_handler.load_master_schema("master_schema")
-
-                agent = StructuralValidationAgent()
-                try:
-                    result = agent.execute(df, master_schema)
-                    validation = result.result or {}
-                    st.session_state.schema_validation_result = {
-                        "validation": validation,
-                        "master_schema": master_schema
-                    }
-                except Exception as e:
-                    source_schema = agent._extract_source_schema(df)
-                    rule_mappings = agent._rule_based_matching(source_schema, master_schema)
-                    st.session_state.schema_validation_result = {
-                        "validation": {
-                            "column_mappings": [m.model_dump() for m in rule_mappings],
-                            "validation_warnings": [f"Schema validation fallback: {str(e)}"]
-                        },
-                        "master_schema": master_schema
-                    }
-            st.success("Schema validation completed.")
+            if check_api_key():
+                with st.spinner("Loading knowledge bag and current stats, then calling API..."):
+                    from utils.agentic_loop import _summarize_dataframe
+                    knowledge_bag_path = METADATA_DIR / "knowledge_bag.yaml"
+                    kb = load_knowledge_bag(knowledge_bag_path)
+                    current_stats = _summarize_dataframe(df)
+                    metadata_handler = MetadataHandler(METADATA_DIR)
+                    schema_name = st.session_state.get("schema_name", "master_schema")
+                    try:
+                        master_schema = metadata_handler.load_master_schema(schema_name)
+                    except Exception:
+                        master_schema = metadata_handler.load_master_schema("master_schema")
+                    llm_agent = get_llm_reasoning_agent()
+                    try:
+                        validation_result, tokens_used = llm_agent.schema_validation_from_knowledge(
+                            knowledge_bag=kb,
+                            current_stats=current_stats,
+                            master_schema=master_schema,
+                        )
+                        st.session_state.schema_validation_result = {
+                            "validation": validation_result,
+                            "master_schema": master_schema,
+                            "tokens_used": tokens_used,
+                        }
+                        st.success(f"AI schema validation completed. ({tokens_used:,} tokens)")
+                    except Exception as e:
+                        st.session_state.schema_validation_result = {
+                            "validation": {
+                                "column_mappings": [],
+                                "validation_errors": [str(e)],
+                                "validation_warnings": ["API failed; check key and retry."],
+                                "analysis_summary": "",
+                            },
+                            "master_schema": master_schema if 'master_schema' in dir() else {},
+                            "tokens_used": 0,
+                        }
+                        st.error(f"Schema validation failed: {str(e)[:200]}")
+            else:
+                st.error("⚠️ Configure Azure OpenAI API key in sidebar first.")
 
         validation_bundle = st.session_state.get("schema_validation_result")
         if validation_bundle:
             validation = validation_bundle.get("validation", {})
             master_schema = validation_bundle.get("master_schema", {})
-            master_cols = [c.get("name") for c in master_schema.get("columns", [])]
+            master_cols = [c.get("name") for c in (master_schema.get("columns") or [])]
+
+            if validation.get("validation_errors"):
+                for err in validation["validation_errors"]:
+                    st.error(f"❌ {err}")
+            if validation.get("validation_warnings"):
+                for w in validation["validation_warnings"]:
+                    st.warning(f"⚠️ {w}")
+            if validation.get("analysis_summary"):
+                st.info(validation["analysis_summary"])
 
             column_mappings = validation.get("column_mappings", [])
             if column_mappings:
-                with st.expander("🧷 Column Mappings — Review & Confirm", expanded=True):
-                    for mapping in column_mappings:
-                        source_col = mapping.get("source_column")
-                        target_col = mapping.get("target_column")
-                        confidence = mapping.get("confidence", 0)
-                        label = f"{source_col} → {target_col} ({'High' if confidence >= 0.8 else 'Medium' if confidence >= 0.6 else 'Low'})"
+                st.markdown("**🧷 Column Mappings — Review & Confirm**")
+                for mapping in column_mappings:
+                    source_col = mapping.get("source_column")
+                    target_col = mapping.get("target_column")
+                    confidence = mapping.get("confidence", 0)
+                    label = f"{source_col} → {target_col} ({'High' if confidence >= 0.8 else 'Medium' if confidence >= 0.6 else 'Low'})"
 
-                        with st.expander(label, expanded=False):
-                            evidence = {}
-                            if source_col in df.columns:
-                                series = df[source_col]
-                                evidence = {
-                                    "type": str(series.dtype),
-                                    "unique_values": int(series.nunique(dropna=True)),
-                                    "null_pct": round(series.isna().mean() * 100, 2),
-                                    "sample_values": series.dropna().astype(str).head(5).tolist()
-                                }
+                    with st.expander(label, expanded=False):
+                        evidence = {}
+                        if source_col in df.columns:
+                            series = df[source_col]
+                            evidence = {
+                                "type": str(series.dtype),
+                                "unique_values": int(series.nunique(dropna=True)),
+                                "null_pct": round(series.isna().mean() * 100, 2),
+                                "sample_values": series.dropna().astype(str).head(5).tolist()
+                            }
 
-                            col_left, col_right = st.columns([2, 1])
-                            with col_left:
-                                st.markdown("**Evidence**")
-                                st.caption(f"Source Column: {source_col}")
-                                if evidence:
-                                    st.caption(f"Type: {evidence['type']}")
-                                    st.caption(f"Unique values: {evidence['unique_values']}")
-                                    st.caption(f"Null %: {evidence['null_pct']}")
-                                    st.caption(f"Sample values: {evidence['sample_values']}")
+                        col_left, col_right = st.columns([2, 1])
+                        with col_left:
+                            st.markdown("**Evidence**")
+                            st.caption(f"Source Column: {source_col}")
+                            if evidence:
+                                st.caption(f"Type: {evidence['type']}")
+                                st.caption(f"Unique values: {evidence['unique_values']}")
+                                st.caption(f"Null %: {evidence['null_pct']}")
+                                st.caption(f"Sample values: {evidence['sample_values']}")
 
-                                if mapping.get("reasoning"):
-                                    st.markdown("**AI Reasoning**")
-                                    st.caption(mapping.get("reasoning"))
+                            if mapping.get("reasoning"):
+                                st.markdown("**AI Reasoning**")
+                                st.caption(mapping.get("reasoning"))
 
-                            with col_right:
-                                st.markdown("**Your Decision**")
-                                decision_key = f"decision_{source_col}"
-                                action = st.radio(
-                                    "Action",
-                                    ["Confirm suggested", "Map to different", "Add as new column", "Skip this column"],
-                                    key=decision_key,
-                                    label_visibility="collapsed"
+                        with col_right:
+                            st.markdown("**Your Decision**")
+                            decision_key = f"decision_{source_col}"
+                            action = st.radio(
+                                "Action",
+                                ["Confirm suggested", "Map to different", "Add as new column", "Skip this column"],
+                                key=decision_key,
+                                label_visibility="collapsed"
+                            )
+                            target_choice = target_col
+                            if action == "Map to different":
+                                target_choice = st.selectbox(
+                                    "Select target column",
+                                    options=[c for c in master_cols if c] + ["UNMAPPED"],
+                                    key=f"target_{source_col}"
                                 )
-                                target_choice = target_col
-                                if action == "Map to different":
-                                    target_choice = st.selectbox(
-                                        "Select target column",
-                                        options=[c for c in master_cols if c] + ["UNMAPPED"],
-                                        key=f"target_{source_col}"
-                                    )
 
-                                st.session_state.mapping_decisions[source_col] = {
-                                    "action": "confirm" if action == "Confirm suggested" else
-                                              "map_to" if action == "Map to different" else
-                                              "add_new" if action == "Add as new column" else
-                                              "skip",
-                                    "target": target_choice
-                                }
+                            st.session_state.mapping_decisions[source_col] = {
+                                "action": "confirm" if action == "Confirm suggested" else
+                                          "map_to" if action == "Map to different" else
+                                          "add_new" if action == "Add as new column" else
+                                          "skip",
+                                "target": target_choice
+                            }
 
-                    apply_mappings = st.button("✅ Apply Mapping Decisions")
-                    if apply_mappings:
-                        mapped_df = apply_mapping_decisions(
-                            df,
-                            st.session_state.mapping_decisions
-                        )
-                        st.session_state.mapped_df = mapped_df
-                        st.success("Mapping decisions applied. Harmonization will use mapped data.")
+                apply_mappings = st.button("✅ Apply Mapping Decisions")
+                if apply_mappings:
+                    mapped_df = apply_mapping_decisions(
+                        df,
+                        st.session_state.mapping_decisions
+                    )
+                    st.session_state.mapped_df = mapped_df
+                    # Save confirmed mappings to knowledge bag so future runs learn from them
+                    try:
+                        kb_path = METADATA_DIR / "knowledge_bag.yaml"
+                        kb = load_knowledge_bag(kb_path)
+                        kb.setdefault("learned_mappings", [])
+                        for src, dec in st.session_state.mapping_decisions.items():
+                            action = dec.get("action", "confirm")
+                            target = dec.get("target", "UNMAPPED")
+                            if action in ("confirm", "map_to") and target and target != "UNMAPPED":
+                                kb["learned_mappings"].append({
+                                    "source_column": src,
+                                    "target_column": target,
+                                    "confidence": 0.95,
+                                    "status": "user_confirmed",
+                                    "timestamp": datetime.utcnow().isoformat(),
+                                })
+                        save_knowledge_bag(kb_path, kb)
+                    except Exception:
+                        pass
+                    st.success("Mapping decisions applied. Harmonization will use mapped data.")
         
         # Initialize AI recommendations in session state
         if 'ai_recommendations' not in st.session_state:
@@ -2253,21 +2338,17 @@ with tab1:
                     "dict_source": "Dictionary"
                 })
 
-        if combined_recs:
-            st.markdown("### 📋 Missing Value Recommendations")
-            st.caption("Unified view of AI + Dictionary suggestions. Review and apply once.")
+        # Optional: manual overrides for missing values.
+        # Main path is to let the Agentic Data Cleaning step generate code based on stats + knowledge bag.
+        if combined_recs and st.checkbox(
+            "Show manual missing-value overrides (advanced)", value=False
+        ):
+            st.markdown("### 📋 Missing Value Recommendations (Advanced)")
+            st.caption(
+                "AI + Dictionary suggestions for missing values. Use only if you want to override the agentic cleaning."
+            )
 
-            apply_combined = st.button("✅ Apply Recommendations", key="apply_combined_recs")
-            if apply_combined:
-                knowledge_bag = load_knowledge_bag(knowledge_bag_path)
-                knowledge_bag = update_imputation_overrides(
-                    knowledge_bag,
-                    st.session_state.column_missing_strategies,
-                    source="combined_recommendations"
-                )
-                save_knowledge_bag(knowledge_bag_path, knowledge_bag)
-                st.success("Recommendations applied.")
-
+            # Map short strategy codes to human-readable labels
             strategy_map = {
                 'mean': 'Replace with MEAN',
                 'median': 'Replace with MEDIAN',
@@ -2280,6 +2361,7 @@ with tab1:
                 'drop': 'Drop column'
             }
 
+            # Per-column UI
             for col_name, info in list(combined_recs.items())[:30]:
                 is_numeric = pd.api.types.is_numeric_dtype(df[col_name]) if col_name in df.columns else False
                 if is_numeric:
@@ -2290,7 +2372,7 @@ with tab1:
                         "Replace with 0",
                         "Replace with MODE",
                         "Remove rows",
-                        "Drop column"
+                        "Drop column",
                     ]
                 else:
                     options = [
@@ -2300,8 +2382,62 @@ with tab1:
                         "Replace with MODE",
                         "Replace with 'N/A'",
                         "Remove rows",
-                        "Drop column"
+                        "Drop column",
                     ]
+
+                # Determine recommended strategy (AI preferred over dictionary)
+                ai_code = (info.get("ai_strategy") or "").lower()
+                dict_code = (info.get("dict_strategy") or "").lower()
+                rec_code = ai_code or dict_code or ""
+                rec_label = strategy_map.get(rec_code)
+                rec_source = "AI" if ai_code else ("Dictionary" if dict_code else None)
+
+                # Current choice stored in session (after user interaction or overrides)
+                current_choice = st.session_state.column_missing_strategies.get(col_name)
+                default_label = rec_label or "Keep missing"
+                if current_choice is None:
+                    current_choice = default_label
+
+                col_c1, col_c2 = st.columns([2, 1])
+                with col_c1:
+                    st.markdown(f"**{col_name}**")
+                    missing_info = info.get("ai_missing") or info.get("dict_missing")
+                    if missing_info is not None:
+                        st.caption(f"Missing: {missing_info}")
+                    if rec_label and rec_source:
+                        # If current choice matches recommendation, mark in green
+                        if current_choice == rec_label:
+                            st.markdown(
+                                f"<span style='color:#16a34a;font-weight:bold;'>Recommended applied: {rec_label} ({rec_source})</span>",
+                                unsafe_allow_html=True,
+                            )
+                        else:
+                            st.caption(f"Recommended: {rec_label} ({rec_source})")
+                    reason = info.get("ai_reason") or info.get("dict_reason")
+                    if reason:
+                        st.caption(f"Why: {reason}")
+
+                with col_c2:
+                    selected = st.selectbox(
+                        "Strategy",
+                        options=options,
+                        index=options.index(current_choice) if current_choice in options else 0,
+                        key=f"missing_strategy_{col_name}",
+                        label_visibility="collapsed",
+                    )
+                    st.session_state.column_missing_strategies[col_name] = selected
+
+            # When user applies, persist to knowledge bag
+            apply_combined = st.button("✅ Apply Recommendations", key="apply_combined_recs")
+            if apply_combined:
+                knowledge_bag = load_knowledge_bag(knowledge_bag_path)
+                knowledge_bag = update_imputation_overrides(
+                    knowledge_bag,
+                    st.session_state.column_missing_strategies,
+                    source="combined_recommendations",
+                )
+                save_knowledge_bag(knowledge_bag_path, knowledge_bag)
+                st.success("Recommendations applied.")
 
         st.divider()
 
@@ -2448,7 +2584,7 @@ with tab1:
                     progress_bar.progress(progress)
                     status_text.text(message)
                 
-                with st.spinner("Running local harmonization (no API)..."):
+                with st.spinner("Running AI-driven harmonization..."):
                     try:
                         base_df = (
                             st.session_state.get("mapped_df")
@@ -2579,7 +2715,7 @@ with tab2:
             with st.expander("📋 Detailed Changes Log", expanded=True):
                 for change in st.session_state.harmonization_changes:
                     st.success(f"✓ {change}")
-                st.caption("✨ All transformations done locally (no API tokens used)")
+                st.caption("✨ Harmonization options from AI (knowledge bag + stats); transformations applied locally.")
             
             st.divider()
 
@@ -2590,6 +2726,21 @@ with tab2:
         harmonized_df = st.session_state.get('harmonized_df', None)
         if raw_df is not None and harmonized_df is not None:
             st.subheader("🔍 Data Changes Preview (Raw vs Harmonized)")
+            with st.expander("ℹ️ Why doesn’t harmonized output look like my input?", expanded=False):
+                st.markdown("""
+                **Harmonization is meant to transform data**, not copy it. So the output will look different on purpose:
+
+                - **Column names**: Standardized (lowercase, underscores, special chars removed).  
+                  e.g. `respondent_` → `respondent`, `sfaction_snps_score` / `chase_int` may be renamed or merged.
+                - **Dates**: Unified format (e.g. `YYYY > MM > DD` or mixed → `YYYY-MM-DD`).
+                - **Country**: Standardized to one style (e.g. full names → ISO codes like FR, NL, or the reverse depending on settings).
+                - **Categories**: Channel, gender, etc. normalized (e.g. "Very Unlik" → "Very Unlikely", "unknown" → consistent casing).
+                - **Missing/Unknown**: "Unknown", "UNKNOWI" replaced by imputation or a single placeholder.
+                - **Scores**: Optional scale conversion (e.g. 0–10 → 0–100) or NPS → categories.
+
+                So **corrected input** = your cleaned file; **harmonized output** = same data, standardized for analysis.  
+                Use the **Detailed Changes Log** and the highlighted cells below to see exactly what changed.
+                """)
             styled_preview, summary = build_change_preview(raw_df, harmonized_df, max_rows=50)
 
             col_a, col_b, col_c = st.columns(3)

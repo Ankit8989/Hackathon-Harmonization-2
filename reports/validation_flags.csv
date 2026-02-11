@@ -1,4 +1,4 @@
 dataset,record_id,column,issue_type,details
-historical,,,min_records,"Dataset has 0 rows, minimum is 10"
-current,,,min_records,"Dataset has 0 rows, minimum is 10"
-incremental,,,min_records,"Dataset has 0 rows, minimum is 10"
+historical,,,min_records,"Dataset has 0 rows, minimum is 5"
+current,,,min_records,"Dataset has 0 rows, minimum is 5"
+incremental,,,min_records,"Dataset has 0 rows, minimum is 5"

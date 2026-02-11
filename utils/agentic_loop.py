@@ -11,6 +11,8 @@ The LLM:
 
 from __future__ import annotations
 
+import re
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
@@ -18,6 +20,12 @@ import pandas as pd
 
 from agents.data_quality_agent import DataQualityAgent
 from agents.llm_reasoning_agent import get_llm_reasoning_agent
+from config import METADATA_DIR
+from utils.knowledge_bag import (
+    add_learned_format_fix,
+    load_knowledge_bag,
+    save_knowledge_bag,
+)
 
 
 def _summarize_dataframe(df: pd.DataFrame) -> Dict[str, Any]:
@@ -30,6 +38,12 @@ def _summarize_dataframe(df: pd.DataFrame) -> Dict[str, Any]:
 
     for col in df.columns:
         series = df[col]
+        # In rare cases (e.g. MultiIndex columns), df[col] can be a DataFrame.
+        # Fall back to the first sub-column so downstream logic always sees a Series.
+        if isinstance(series, pd.DataFrame):
+            if series.shape[1] == 0:
+                continue
+            series = series.iloc[:, 0]
         col_info: Dict[str, Any] = {
             "dtype": str(series.dtype),
             "non_null_count": int(series.notna().sum()),
@@ -79,6 +93,27 @@ def _build_dq_summary(dq_result: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def _looks_like_format_fix(description: str, code: str) -> bool:
+    """Heuristic: did this iteration fix a date/format issue (e.g. separator ' > ' -> '-')?"""
+    d = (description or "").lower()
+    c = (code or "").lower()
+    if "date" in d or "format" in d or "separator" in d:
+        return True
+    if "replace" in c and (" > " in (code or "") or "'>'" in (code or "") or '">"' in (code or "")):
+        return True
+    if "strftime" in c or "to_datetime" in c:
+        return True
+    return False
+
+
+def _column_mentioned_in_code(code: str) -> Optional[str]:
+    """Extract first column name from code like df['col'] or df[\"col\"]."""
+    if not code:
+        return None
+    m = re.search(r"df\s*\[\s*['\"]([^'\"]+)['\"]\s*\]", code)
+    return m.group(1) if m else None
+
+
 def _run_data_quality(
     df: pd.DataFrame,
     master_schema: Optional[Dict[str, Any]] = None,
@@ -121,6 +156,9 @@ def run_agentic_loop(
         return df, [], {}
 
     llm_agent = get_llm_reasoning_agent()
+    knowledge_bag_path: Path = METADATA_DIR / "knowledge_bag.yaml"
+    knowledge_bag = load_knowledge_bag(knowledge_bag_path)
+    learned_format_fixes: List[Dict[str, Any]] = knowledge_bag.get("learned_format_fixes") or []
 
     # Initial quality evaluation
     dq_dict = _run_data_quality(df, master_schema, business_rules)
@@ -150,6 +188,7 @@ def run_agentic_loop(
                 dq_before=dq_before_summary,
                 last_error=last_error,
                 iteration=iteration,
+                learned_format_fixes=learned_format_fixes,
             )
         except Exception as exc:  # pragma: no cover - defensive: includes 429s
             llm_call_error = str(exc)
@@ -204,6 +243,20 @@ def run_agentic_loop(
         }
         history.append(iteration_log)
 
+        # If AI fixed a format/date issue successfully, store it for future runs
+        if exec_error is None and _looks_like_format_fix(description, code):
+            col = _column_mentioned_in_code(code) or "unknown"
+            add_learned_format_fix(
+                knowledge_bag,
+                column=col,
+                problem_description="Date/format with wrong separator (e.g. ' > ' instead of '-')",
+                fix_description=description or "Normalize to standard format (e.g. YYYY-MM-DD)",
+                sample_before=None,
+                sample_after=None,
+            )
+            save_knowledge_bag(knowledge_bag_path, knowledge_bag)
+            learned_format_fixes = knowledge_bag.get("learned_format_fixes") or []
+
         # Update loop state
         last_error = exec_error
         prev_score = new_score
@@ -240,14 +293,25 @@ def run_agentic_loop(
         # Numeric: fill NaNs with column mean; Non-numeric: fill NaNs with 'Unknown'
         numeric_cols = working_df.select_dtypes(include=["number"]).columns
         for col in numeric_cols:
-            if working_df[col].isna().any():
-                mean_val = working_df[col].mean()
-                working_df[col] = working_df[col].fillna(mean_val)
+            series = working_df[col]
+            # Handle rare case where df[col] is a DataFrame (e.g. MultiIndex); use first sub-column
+            if isinstance(series, pd.DataFrame):
+                if series.shape[1] == 0:
+                    continue
+                series = series.iloc[:, 0]
+            if series.isna().any():
+                mean_val = series.mean()
+                working_df[col] = series.fillna(mean_val)
 
         non_numeric_cols = working_df.columns.difference(numeric_cols)
         for col in non_numeric_cols:
-            if working_df[col].isna().any():
-                working_df[col] = working_df[col].fillna("Unknown")
+            series = working_df[col]
+            if isinstance(series, pd.DataFrame):
+                if series.shape[1] == 0:
+                    continue
+                series = series.iloc[:, 0]
+            if series.isna().any():
+                working_df[col] = series.fillna("Unknown")
 
         # Recompute quality after fallback
         dq_dict = _run_data_quality(working_df, master_schema, business_rules)
@@ -258,6 +322,21 @@ def run_agentic_loop(
             - fallback_log["quality_before"].get("overall_quality_score", 0.0)
         )
         history.append(fallback_log)
+
+    # Ensure column names are unique so downstream display (pyarrow/Streamlit)
+    # does not fail on duplicates created by AI-generated code or mappings.
+    if working_df is not None and not working_df.empty:
+        cols = list(working_df.columns)
+        seen: Dict[str, int] = {}
+        new_cols = []
+        for c in cols:
+            if c in seen:
+                seen[c] += 1
+                new_cols.append(f"{c}_dup{seen[c]}")
+            else:
+                seen[c] = 0
+                new_cols.append(c)
+        working_df.columns = new_cols
 
     return working_df, history, dq_dict
 

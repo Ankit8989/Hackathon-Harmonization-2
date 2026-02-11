@@ -1,0 +1,21 @@
+respondent_id,survey_date,country,age,gender,satisfaction_score,nps_score,purchase_intent,channel
+2001,2024-06-01,France,,M,30.0,10.0,,Online
+2002,,Netherlands,35 to 44,,55.0,,Very Unlikely,Mobile
+2003,2024-06-03,,45 to 54,M,,2.0,Likely,
+2004,2024-06-04,UK,,F,21.0,,Neutral,Retail
+2005,2024-06-05,Australia,25 to 34,M,94.0,7.0,,
+2006,,India,,M,26.0,2.0,Neutral,Social
+2007,2024-06-07,,18 to 24,F,61.0,,Likely,Mobile
+2008,2024-06-08,Spain,25 to 34,,24.0,4.0,,Social
+2009,2024-06-09,France,,Other,,9.0,Neutral,Online
+2010,,Japan,45 to 54,F,23.0,,Very Unlikely,
+2011,2024-06-11,USA,25 to 34,Other,80.0,0.0,,Online
+2012,2024-06-12,Brazil,,M,,3.0,Very Unlikely,Mobile
+2013,,Spain,18 to 24,F,46.0,4.0,Likely,Mobile
+2014,2024-06-14,Australia,,Other,15.0,,,Online
+2015,2024-06-15,UK,35 to 44,M,96.0,4.0,,Online
+2016,,Belgium,55 plus,,76.0,9.0,Very Unlikely,
+2017,2024-06-17,Canada,18 to 24,Other,,3.0,Likely,Retail
+2018,2024-06-18,,35 to 44,Other,20.0,3.0,Unlikely,Retail
+2019,2024-06-19,Australia,,M,47.0,,Very Unlikely,Mobile
+2020,,Canada,35 to 44,Other,56.0,0.0,Likely,Mobile

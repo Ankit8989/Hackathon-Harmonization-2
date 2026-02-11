@@ -1,0 +1,33 @@
+# Value mappings for test_input - use with Multi-Source Harmonization
+# Maps raw/short values to canonical display values
+channel:
+  Online: Online
+  online: Online
+  ONL: Online
+  Mobile: Mobile
+  mobile: Mobile
+  MOB: Mobile
+  Retail: Retail
+  retail: Retail
+  RET: Retail
+  Social: Social
+  social: Social
+  SOC: Social
+purchase_intent:
+  Very Unlikely: Very Unlikely
+  Very Unlik: Very Unlikely
+  Unlikely: Unlikely
+  Neutral: Neutral
+  Likely: Likely
+  Very Likely: Very Likely
+  VU: Very Unlikely
+  U: Unlikely
+  N: Neutral
+  L: Likely
+  VL: Very Likely
+gender:
+  M: M
+  F: F
+  Male: M
+  Female: F
+  Other: Other

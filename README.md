@@ -203,6 +203,39 @@ streamlit run app.py
 
 ## 📖 Usage
 
+### Streamlit UI (Agentic Flow)
+
+For the hackathon demo and most interactive work, use the Streamlit UI:
+
+```bash
+streamlit run app.py
+```
+
+**Main single‑file flow (Upload & Process tab):**
+
+1. **Upload data** – CSV/Excel/SPSS/JSON.  
+2. (Optional) **🧰 Auto‑Build Supporting Files (from Unclean Input)**  
+   - *Optional*: only when you want to (re)generate master metadata, mapping tables, validation rules, dictionaries and stats directly from the current upload.  
+3. **🧩 Schema Validation (AI‑driven)**  
+   - Uses **knowledge bag + master schema + current stats** to propose column mappings and validation notes.  
+   - You can accept the AI proposal, or adjust mappings (advanced).  
+4. **🧠 Agentic Data Cleaning**  
+   - LLM sees **only statistics**, generates Python code, we execute it locally, re‑check quality, and repeat for a few iterations.  
+   - All code runs on your machine; only stats + schema go to the API.  
+5. **🚀 Start Harmonization**  
+   - Loads knowledge bag, asks LLM for **harmonization options** (column strategies, date/country/category mapping flags) from stats + history,  
+   - Applies those options locally via `harmonize_data_local`, writes `data/output/harmonized.csv`, and shows a side‑by‑side preview.
+
+**Multi‑Source Harmonization (bottom of the page):**
+
+- Use when you have **historical / current / incremental** files.  
+- You can point it at the sample/test files under `data/test_input/`:
+  - `test_historical.csv`, `test_current.csv`
+  - `test_master_metadata.yaml`, `test_mapping_table.yaml`, `test_validation_rules.yaml`, `test_descriptive_stats.csv`  
+- It harmonizes all sources to the master schema and updates the **knowledge bag** so future runs “remember” mappings and schema diffs.
+
+Manual missing‑value overrides and manual schema tweaks are available only as **advanced** controls; by default, the system is driven by **agents + knowledge bag + data stats + API**, with all transformations executed locally.
+
 ### Command Line Interface
 
 ```bash

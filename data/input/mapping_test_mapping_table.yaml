@@ -1,0 +1,89 @@
+channel:
+  Online: Online
+  online: Online
+  ONL: Online
+  Mobile: Mobile
+  mobile: Mobile
+  MOB: Mobile
+  Retail: Retail
+  retail: Retail
+  RET: Retail
+  Social: Social
+  social: Social
+  SOC: Social
+purchase_intent:
+  Very Unlikely: Very Unlikely
+  Very Unlik: Very Unlikely
+  Unlikely: Unlikely
+  Neutral: Neutral
+  Likely: Likely
+  Very Likely: Very Likely
+  VU: Very Unlikely
+  U: Unlikely
+  N: Neutral
+  L: Likely
+  VL: Very Likely
+gender:
+  M: M
+  F: F
+  Male: M
+  Female: F
+  Other: Other
+age: &id001
+  18-24: 18-24
+  '18_24': 18-24
+  18 to 24: 18-24
+  18-25: 18-24
+  25-34: 25-34
+  '25_34': 25-34
+  25 to 34: 25-34
+  35-44: 35-44
+  '35_44': 35-44
+  35 to 44: 35-44
+  45-54: 45-54
+  '45_54': 45-54
+  45 to 54: 45-54
+  55+: 55+
+  55 plus: 55+
+  56-65: 55+
+  65+: 55+
+  under 18: <18
+  <18: <18
+age_group: *id001
+market: &id002
+  US: USA
+  USA: USA
+  UNITED STATES: USA
+  UK: UK
+  UNITED KINGDOM: UK
+  GB: UK
+  DE: Germany
+  GERMANY: Germany
+  FR: France
+  FRANCE: France
+  ES: Spain
+  SPAIN: Spain
+  IT: Italy
+  ITALY: Italy
+  NL: Netherlands
+  NETHERLANDS: Netherlands
+  BE: Belgium
+  BELGIUM: Belgium
+  JP: Japan
+  JAPAN: Japan
+  AU: Australia
+  AUSTRALIA: Australia
+  CA: Canada
+  CANADA: Canada
+  BR: Brazil
+  BRAZIL: Brazil
+  IN: India
+  INDIA: India
+  CN: China
+  CHINA: China
+country: *id002
+column_mappings:
+  historical_to_master: {}
+  current_to_master: {}
+  incremental_to_master: {}
+  historical_to_current: {}

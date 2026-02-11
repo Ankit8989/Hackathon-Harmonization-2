@@ -1,62 +1,64 @@
 rules:
 - min_records: 10
-- column: Respondent_Serial
-  min: 23822011917320.0
-  max: 23822011936426.0
-- column: QLanguage
-  min: 133.0
-  max: 133.0
-- column: Q3_CAT_AU_E_TN_DEV
-  min: 1.0
-  max: 3.0
-- column: Qcountry
-  min: 238.0
-  max: 238.0
-- column: Main_Boost
-  min: 1.0
-  max: 1.0
-- column: AGE
-  min: 18.0
-  max: 62.0
-- column: LegalAge
-  min: 18.0
-  max: 18.0
-- column: LegalAge1
-  min: 1.0
-  max: 2.0
-- column: LegalAge2
-  min: 1.0
-  max: 2.0
-- column: SEX
-  min: 1.0
-  max: 1.0
-- column: DEMO_REG
-  min: 1621.0
-  max: 1626.0
-- column: DEMO_EDUC
-  min: 273.0
-  max: 410.0
-- column: DEMO_OCC
-  min: 80.0
-  max: 520.0
-- column: UsertypeN#24
+- column: respondent_id
+  min: 2001.0
+  max: 2020.0
+- column: survey_date
+  allowed_values:
+  - '2024-06-01'
+  - '2024-06-03'
+  - '2024-06-04'
+  - '2024-06-05'
+  - '2024-06-07'
+  - '2024-06-08'
+  - '2024-06-09'
+  - '2024-06-11'
+  - '2024-06-12'
+  - '2024-06-14'
+  - '2024-06-15'
+  - '2024-06-17'
+  - '2024-06-18'
+  - '2024-06-19'
+- column: country
+  allowed_values:
+  - France
+  - Netherlands
+  - UK
+  - Australia
+  - India
+  - Spain
+  - Japan
+  - USA
+  - Brazil
+  - Belgium
+  - Canada
+- column: age
+  allowed_values:
+  - 35 to 44
+  - 45 to 54
+  - 25 to 34
+  - 18 to 24
+  - 55 plus
+- column: gender
+  allowed_values:
+  - M
+  - F
+  - Other
+- column: satisfaction_score
+  min: 15.0
+  max: 96.0
+- column: nps_score
   min: 0.0
-  max: 0.0
-- column: UsertypeN#25
-  min: 0.0
-  max: 0.0
-- column: UsertypeN#26
-  min: 0.0
-  max: 0.0
-- column: UsertypeN#27
-  min: 0.0
-  max: 1.0
-- column: UsertypeN#28
-  min: 0.0
-  max: 1.0
-- column: AGE_GROUP_2
-  min: 1.0
-  max: 6.0
-- column: MHI_Groups
-  min: 4.0
-  max: 4.0
+  max: 10.0
+- column: purchase_intent
+  allowed_values:
+  - Very Unlikely
+  - Likely
+  - Neutral
+  - Unlikely
+- column: channel
+  allowed_values:
+  - Online
+  - Mobile
+  - Retail
+  - Social

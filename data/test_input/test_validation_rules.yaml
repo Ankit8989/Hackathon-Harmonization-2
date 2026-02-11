@@ -1,0 +1,36 @@
+# Validation rules for test_input - use with Multi-Source Harmonization
+rules:
+  - min_records: 5
+  - column: satisfaction_score
+    min: 0
+    max: 100
+  - column: nps_score
+    min: 0
+    max: 10
+  - column: age
+    allowed_values:
+      - 18 to 24
+      - 25 to 34
+      - 35 to 44
+      - 45 to 54
+      - 55 plus
+      - 18-24
+      - 25-34
+      - 35-44
+      - 45-54
+      - 55+
+  - column: country
+    allowed_values:
+      - France
+      - Netherlands
+      - Japan
+      - UK
+      - Australia
+      - India
+      - Spain
+      - USA
+      - Brazil
+      - Belgium
+      - Canada
+      - Germany
+      - China

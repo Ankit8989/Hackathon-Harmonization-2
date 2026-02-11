@@ -1,309 +1,343 @@
 {
   "shape": {
-    "rows": 12,
-    "columns": 8
+    "rows": 10,
+    "columns": 9
   },
   "head": [
     {
-      "date": "2023-01-15",
-      "product": "Brand_A",
-      "region": "North",
-      "channel": "Online",
-      "units": 120,
-      "unit_price": 9.5,
-      "revenue": 1140.0,
-      "currency": "USD"
+      "respondent_id": 2001,
+      "survey_date": "2024-06-01",
+      "country": "France",
+      "age": "35 to 44",
+      "gender": "M",
+      "satisfaction_score": 30,
+      "nps_score": 10,
+      "purchase_intent": "Very Unlikely",
+      "channel": "Online"
     },
     {
-      "date": "2023-02-10",
-      "product": "Brand_B",
-      "region": "South",
-      "channel": "Retail",
-      "units": 85,
-      "unit_price": 11.0,
-      "revenue": 935.0,
-      "currency": "USD"
+      "respondent_id": 2002,
+      "survey_date": "2024-06-02",
+      "country": "Netherlands",
+      "age": "35 to 44",
+      "gender": "F",
+      "satisfaction_score": 55,
+      "nps_score": 3,
+      "purchase_intent": "Very Unlikely",
+      "channel": "Mobile"
     },
     {
-      "date": "2023-03-08",
-      "product": "Brand_C",
-      "region": "East",
-      "channel": "Wholesale",
-      "units": 60,
-      "unit_price": 13.25,
-      "revenue": 795.0,
-      "currency": "USD"
+      "respondent_id": 2003,
+      "survey_date": "2024-06-03",
+      "country": "Japan",
+      "age": "45 to 54",
+      "gender": "M",
+      "satisfaction_score": 21,
+      "nps_score": 2,
+      "purchase_intent": "Likely",
+      "channel": "Retail"
     },
     {
-      "date": "2023-04-12",
-      "product": "Brand_A",
-      "region": "West",
-      "channel": "Online",
-      "units": 140,
-      "unit_price": 9.75,
-      "revenue": 1365.0,
-      "currency": "USD"
+      "respondent_id": 2004,
+      "survey_date": "2024-06-04",
+      "country": "UK",
+      "age": "25 to 34",
+      "gender": "F",
+      "satisfaction_score": 21,
+      "nps_score": 4,
+      "purchase_intent": "Neutral",
+      "channel": "Retail"
     },
     {
-      "date": "2023-05-05",
-      "product": "Brand_D",
-      "region": "North",
-      "channel": "Retail",
-      "units": 95,
-      "unit_price": 10.5,
-      "revenue": 997.5,
-      "currency": "USD"
+      "respondent_id": 2005,
+      "survey_date": "2024-06-05",
+      "country": "Australia",
+      "age": "25 to 34",
+      "gender": "M",
+      "satisfaction_score": 94,
+      "nps_score": 7,
+      "purchase_intent": "Neutral",
+      "channel": "Social"
     }
   ],
   "tail": [
     {
-      "date": "2023-08-14",
-      "product": "Brand_D",
-      "region": "West",
-      "channel": "Retail",
-      "units": 88,
-      "unit_price": 10.75,
-      "revenue": 946.0,
-      "currency": "USD"
+      "respondent_id": 2006,
+      "survey_date": "2024-06-06",
+      "country": "India",
+      "age": "18 to 24",
+      "gender": "M",
+      "satisfaction_score": 26,
+      "nps_score": 2,
+      "purchase_intent": "Neutral",
+      "channel": "Social"
     },
     {
-      "date": "2023-09-09",
-      "product": "Brand_A",
-      "region": "East",
-      "channel": "Online",
-      "units": 130,
-      "unit_price": 9.6,
-      "revenue": 1248.0,
-      "currency": "USD"
+      "respondent_id": 2007,
+      "survey_date": "2024-06-07",
+      "country": "Spain",
+      "age": "18 to 24",
+      "gender": "F",
+      "satisfaction_score": 61,
+      "nps_score": 6,
+      "purchase_intent": "Likely",
+      "channel": "Mobile"
     },
     {
-      "date": "2023-10-03",
-      "product": "Brand_B",
-      "region": "North",
-      "channel": "Wholesale",
-      "units": 75,
-      "unit_price": 11.1,
-      "revenue": 832.5,
-      "currency": "USD"
+      "respondent_id": 2008,
+      "survey_date": "2024-06-08",
+      "country": "Spain",
+      "age": "25 to 34",
+      "gender": "M",
+      "satisfaction_score": 24,
+      "nps_score": 4,
+      "purchase_intent": "Very Unlikely",
+      "channel": "Social"
     },
     {
-      "date": "2023-11-19",
-      "product": "Brand_C",
-      "region": "West",
-      "channel": "Retail",
-      "units": 92,
-      "unit_price": 13.4,
-      "revenue": 1232.8,
-      "currency": "USD"
+      "respondent_id": 2009,
+      "survey_date": "2024-06-09",
+      "country": "France",
+      "age": "35 to 44",
+      "gender": "Other",
+      "satisfaction_score": 43,
+      "nps_score": 9,
+      "purchase_intent": "Neutral",
+      "channel": "Online"
     },
     {
-      "date": "2023-12-07",
-      "product": "Brand_D",
-      "region": "South",
-      "channel": "Online",
-      "units": 105,
-      "unit_price": 10.9,
-      "revenue": 1144.5,
-      "currency": "USD"
+      "respondent_id": 2010,
+      "survey_date": "2024-06-10",
+      "country": "Japan",
+      "age": "45 to 54",
+      "gender": "F",
+      "satisfaction_score": 23,
+      "nps_score": 1,
+      "purchase_intent": "Very Unlikely",
+      "channel": "Online"
     }
   ],
   "columns": {
-    "date": {
-      "dtype": "object",
-      "inferred_type": "string",
-      "unique_count": 12,
+    "respondent_id": {
+      "dtype": "int64",
+      "inferred_type": "integer",
+      "unique_count": 10,
       "missing_count": 0,
       "missing_pct": 0.0,
       "sample_values": [
-        "2023-01-15",
-        "2023-02-10",
-        "2023-03-08",
-        "2023-04-12",
-        "2023-05-05"
+        "2001",
+        "2002",
+        "2003",
+        "2004",
+        "2005"
+      ],
+      "min": 2001.0,
+      "max": 2010.0,
+      "mean": 2005.5,
+      "median": 2005.5,
+      "std": 3.0276503540974917,
+      "scale_range": 9.0
+    },
+    "survey_date": {
+      "dtype": "object",
+      "inferred_type": "string",
+      "unique_count": 10,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "2024-06-01",
+        "2024-06-02",
+        "2024-06-03",
+        "2024-06-04",
+        "2024-06-05"
       ],
       "levels": {
-        "2023-01-15": 1,
-        "2023-02-10": 1,
-        "2023-03-08": 1,
-        "2023-04-12": 1,
-        "2023-05-05": 1,
-        "2023-06-18": 1,
-        "2023-07-22": 1,
-        "2023-08-14": 1,
-        "2023-09-09": 1,
-        "2023-10-03": 1,
-        "2023-11-19": 1,
-        "2023-12-07": 1
+        "2024-06-01": 1,
+        "2024-06-02": 1,
+        "2024-06-03": 1,
+        "2024-06-04": 1,
+        "2024-06-05": 1,
+        "2024-06-06": 1,
+        "2024-06-07": 1,
+        "2024-06-08": 1,
+        "2024-06-09": 1,
+        "2024-06-10": 1
       }
     },
-    "product": {
+    "country": {
+      "dtype": "object",
+      "inferred_type": "string",
+      "unique_count": 7,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "France",
+        "Netherlands",
+        "Japan",
+        "UK",
+        "Australia"
+      ],
+      "levels": {
+        "France": 2,
+        "Japan": 2,
+        "Spain": 2,
+        "Netherlands": 1,
+        "UK": 1,
+        "Australia": 1,
+        "India": 1
+      }
+    },
+    "age": {
       "dtype": "object",
       "inferred_type": "string",
       "unique_count": 4,
       "missing_count": 0,
       "missing_pct": 0.0,
       "sample_values": [
-        "Brand_A",
-        "Brand_B",
-        "Brand_C",
-        "Brand_A",
-        "Brand_D"
+        "35 to 44",
+        "35 to 44",
+        "45 to 54",
+        "25 to 34",
+        "25 to 34"
       ],
       "levels": {
-        "Brand_A": 3,
-        "Brand_B": 3,
-        "Brand_C": 3,
-        "Brand_D": 3
+        "35 to 44": 3,
+        "25 to 34": 3,
+        "45 to 54": 2,
+        "18 to 24": 2
       }
     },
-    "region": {
-      "dtype": "object",
-      "inferred_type": "string",
-      "unique_count": 4,
-      "missing_count": 0,
-      "missing_pct": 0.0,
-      "sample_values": [
-        "North",
-        "South",
-        "East",
-        "West",
-        "North"
-      ],
-      "levels": {
-        "North": 3,
-        "South": 3,
-        "East": 3,
-        "West": 3
-      }
-    },
-    "channel": {
+    "gender": {
       "dtype": "object",
       "inferred_type": "string",
       "unique_count": 3,
       "missing_count": 0,
       "missing_pct": 0.0,
       "sample_values": [
-        "Online",
-        "Retail",
-        "Wholesale",
-        "Online",
-        "Retail"
+        "M",
+        "F",
+        "M",
+        "F",
+        "M"
       ],
       "levels": {
-        "Online": 5,
-        "Retail": 4,
-        "Wholesale": 3
+        "M": 5,
+        "F": 4,
+        "Other": 1
       }
     },
-    "units": {
+    "satisfaction_score": {
       "dtype": "int64",
       "inferred_type": "integer",
-      "unique_count": 12,
+      "unique_count": 9,
       "missing_count": 0,
       "missing_pct": 0.0,
       "sample_values": [
-        "120",
-        "85",
-        "60",
-        "140",
-        "95"
+        "30",
+        "55",
+        "21",
+        "21",
+        "94"
       ],
-      "min": 60.0,
-      "max": 140.0,
-      "mean": 97.5,
-      "median": 93.5,
-      "std": 24.370250119953443,
-      "scale_range": 80.0
+      "min": 21.0,
+      "max": 94.0,
+      "mean": 39.8,
+      "median": 28.0,
+      "std": 23.929526159584153,
+      "scale_range": 73.0
     },
-    "unit_price": {
-      "dtype": "float64",
-      "inferred_type": "float",
-      "unique_count": 12,
+    "nps_score": {
+      "dtype": "int64",
+      "inferred_type": "integer",
+      "unique_count": 8,
       "missing_count": 0,
       "missing_pct": 0.0,
       "sample_values": [
-        "9.5",
-        "11.0",
-        "13.25",
-        "9.75",
-        "10.5"
+        "10",
+        "3",
+        "2",
+        "4",
+        "7"
       ],
-      "min": 9.5,
-      "max": 13.4,
-      "mean": 11.1625,
-      "median": 10.95,
-      "std": 1.3701567594456285,
-      "scale_range": 3.9000000000000004
+      "min": 1.0,
+      "max": 10.0,
+      "mean": 4.8,
+      "median": 4.0,
+      "std": 3.0840089349921005,
+      "scale_range": 9.0
     },
-    "revenue": {
-      "dtype": "float64",
-      "inferred_type": "float",
-      "unique_count": 12,
-      "missing_count": 0,
-      "missing_pct": 0.0,
-      "sample_values": [
-        "1140.0",
-        "935.0",
-        "795.0",
-        "1365.0",
-        "997.5"
-      ],
-      "min": 795.0,
-      "max": 1365.0,
-      "mean": 1064.8583333333333,
-      "median": 1068.75,
-      "std": 185.3935247390035,
-      "scale_range": 570.0
-    },
-    "currency": {
+    "purchase_intent": {
       "dtype": "object",
       "inferred_type": "string",
-      "unique_count": 1,
+      "unique_count": 3,
       "missing_count": 0,
       "missing_pct": 0.0,
       "sample_values": [
-        "USD",
-        "USD",
-        "USD",
-        "USD",
-        "USD"
+        "Very Unlikely",
+        "Very Unlikely",
+        "Likely",
+        "Neutral",
+        "Neutral"
       ],
       "levels": {
-        "USD": 12
+        "Very Unlikely": 4,
+        "Neutral": 4,
+        "Likely": 2
+      }
+    },
+    "channel": {
+      "dtype": "object",
+      "inferred_type": "string",
+      "unique_count": 4,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "sample_values": [
+        "Online",
+        "Mobile",
+        "Retail",
+        "Retail",
+        "Social"
+      ],
+      "levels": {
+        "Online": 3,
+        "Social": 3,
+        "Mobile": 2,
+        "Retail": 2
       }
     }
   },
   "missing_patterns": {
     "missing_by_column": {
-      "date": 0.0,
-      "product": 0.0,
-      "region": 0.0,
-      "channel": 0.0,
-      "units": 0.0,
-      "unit_price": 0.0,
-      "revenue": 0.0,
-      "currency": 0.0
+      "respondent_id": 0.0,
+      "survey_date": 0.0,
+      "country": 0.0,
+      "age": 0.0,
+      "gender": 0.0,
+      "satisfaction_score": 0.0,
+      "nps_score": 0.0,
+      "purchase_intent": 0.0,
+      "channel": 0.0
     },
     "missing_by_row": {
-      "0": 12
+      "0": 10
     }
   },
   "relationships": {
     "numeric_correlations": [
       {
-        "column_a": "units",
-        "column_b": "revenue",
-        "correlation": 0.8991909884128575
+        "column_a": "satisfaction_score",
+        "column_b": "nps_score",
+        "correlation": 0.39536888294872485
       },
       {
-        "column_a": "units",
-        "column_b": "unit_price",
-        "correlation": -0.7672847851000432
+        "column_a": "respondent_id",
+        "column_b": "nps_score",
+        "correlation": -0.16659585014905856
       },
       {
-        "column_a": "unit_price",
-        "column_b": "revenue",
-        "correlation": -0.42677822150398204
+        "column_a": "respondent_id",
+        "column_b": "satisfaction_score",
+        "correlation": -0.061344787065380914
       }
     ]
   }

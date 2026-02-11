@@ -1,126 +1,101 @@
 {
   "version": "1.0.0",
-  "generated_at": "2026-02-10T12:54:53.678906",
+  "generated_at": "2026-02-11T10:09:17.852330",
   "columns": {
-    "Respondent_Serial": {
-      "data_type": "float",
-      "min": 23822011917320.0,
-      "max": 23822011936426.0,
-      "impute_strategy": "mean"
-    },
-    "QLanguage": {
-      "data_type": "float",
-      "min": 133.0,
-      "max": 133.0,
-      "impute_strategy": "mean"
-    },
-    "Q3_CAT_AU_E_TN_DEV": {
-      "data_type": "float",
-      "min": 1.0,
-      "max": 3.0,
-      "impute_strategy": "mean"
-    },
-    "Qcountry": {
-      "data_type": "float",
-      "min": 238.0,
-      "max": 238.0,
-      "impute_strategy": "mean"
-    },
-    "Main_Boost": {
-      "data_type": "float",
-      "min": 1.0,
-      "max": 1.0,
-      "impute_strategy": "mean"
-    },
-    "AGE": {
-      "data_type": "float",
-      "min": 18.0,
-      "max": 62.0,
-      "impute_strategy": "mean"
-    },
-    "LegalAge": {
+    "respondent_id": {
       "data_type": "integer",
-      "min": 18.0,
-      "max": 18.0,
+      "min": 2001.0,
+      "max": 2020.0,
       "impute_strategy": "mean"
     },
-    "LegalAge1": {
-      "data_type": "integer",
-      "min": 1.0,
-      "max": 2.0,
-      "impute_strategy": "mean"
+    "survey_date": {
+      "data_type": "string",
+      "allowed_values": [
+        "2024-06-01",
+        "2024-06-03",
+        "2024-06-04",
+        "2024-06-05",
+        "2024-06-07",
+        "2024-06-08",
+        "2024-06-09",
+        "2024-06-11",
+        "2024-06-12",
+        "2024-06-14",
+        "2024-06-15",
+        "2024-06-17",
+        "2024-06-18",
+        "2024-06-19"
+      ],
+      "impute_strategy": "mode"
     },
-    "LegalAge2": {
-      "data_type": "integer",
-      "min": 1.0,
-      "max": 2.0,
-      "impute_strategy": "mean"
+    "country": {
+      "data_type": "string",
+      "allowed_values": [
+        "France",
+        "Netherlands",
+        "UK",
+        "Australia",
+        "India",
+        "Spain",
+        "Japan",
+        "USA",
+        "Brazil",
+        "Belgium",
+        "Canada"
+      ],
+      "impute_strategy": "mode"
     },
-    "SEX": {
+    "age": {
+      "data_type": "string",
+      "allowed_values": [
+        "35 to 44",
+        "45 to 54",
+        "25 to 34",
+        "18 to 24",
+        "55 plus"
+      ],
+      "impute_strategy": "mode"
+    },
+    "gender": {
+      "data_type": "string",
+      "allowed_values": [
+        "M",
+        "F",
+        "Other"
+      ],
+      "impute_strategy": "mode"
+    },
+    "satisfaction_score": {
       "data_type": "float",
-      "min": 1.0,
-      "max": 1.0,
+      "min": 15.0,
+      "max": 96.0,
       "impute_strategy": "mean"
     },
-    "DEMO_REG": {
+    "nps_score": {
       "data_type": "float",
-      "min": 1621.0,
-      "max": 1626.0,
-      "impute_strategy": "mean"
-    },
-    "DEMO_EDUC": {
-      "data_type": "float",
-      "min": 273.0,
-      "max": 410.0,
-      "impute_strategy": "mean"
-    },
-    "DEMO_OCC": {
-      "data_type": "integer",
-      "min": 80.0,
-      "max": 520.0,
-      "impute_strategy": "mean"
-    },
-    "UsertypeN#24": {
-      "data_type": "integer",
       "min": 0.0,
-      "max": 0.0,
+      "max": 10.0,
       "impute_strategy": "mean"
     },
-    "UsertypeN#25": {
-      "data_type": "integer",
-      "min": 0.0,
-      "max": 0.0,
-      "impute_strategy": "mean"
+    "purchase_intent": {
+      "data_type": "string",
+      "allowed_values": [
+        "Very Unlikely",
+        "Likely",
+        "Neutral",
+        "Unlikely"
+      ],
+      "impute_strategy": "mode"
     },
-    "UsertypeN#26": {
-      "data_type": "integer",
-      "min": 0.0,
-      "max": 0.0,
-      "impute_strategy": "mean"
-    },
-    "UsertypeN#27": {
-      "data_type": "integer",
-      "min": 0.0,
-      "max": 1.0,
-      "impute_strategy": "mean"
-    },
-    "UsertypeN#28": {
-      "data_type": "integer",
-      "min": 0.0,
-      "max": 1.0,
-      "impute_strategy": "mean"
-    },
-    "AGE_GROUP_2": {
-      "data_type": "integer",
-      "min": 1.0,
-      "max": 6.0,
-      "impute_strategy": "mean"
-    },
-    "MHI_Groups": {
-      "data_type": "integer",
-      "min": 4.0,
-      "max": 4.0,
-      "impute_strategy": "mean"
+    "channel": {
+      "data_type": "string",
+      "allowed_values": [
+        "Online",
+        "Mobile",
+        "Retail",
+        "Social"
+      ],
+      "impute_strategy": "mode"
     }
   }
 }

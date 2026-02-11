@@ -164,18 +164,32 @@ columns:
   # ==========================================
   # SCORE/NUMERIC FIELDS (optional)
   # ==========================================
-  - name: score
-    canonical_name: score
+  # Keep satisfaction_score and nps_score as separate master columns
+  # so they are not merged into a single generic 'score'.
+  - name: satisfaction_score
+    canonical_name: satisfaction_score
     data_type: float
-    description: "Generic score field"
+    description: "Satisfaction or CSAT score, typically 0–100"
     is_required: false
+    validation_rules:
+      min_value: 0
+      max_value: 100
     aliases:
-      - value
-      - result
-      - rating
-      - satisfaction_score
-      - nps_score
-      - total_score
+      - csat
+      - satisfaction
+      - overall_satisfaction
+
+  - name: nps_score
+    canonical_name: nps_score
+    data_type: integer
+    description: "Net Promoter Score (0–10)"
+    is_required: false
+    validation_rules:
+      min_value: 0
+      max_value: 10
+    aliases:
+      - nps
+      - net_promoter_score
 
   # ==========================================
   # TEXT FIELDS (optional)
